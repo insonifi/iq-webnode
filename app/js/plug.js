@@ -1,24 +1,31 @@
 var Promise = require('es6-promise').Promise,
   Plug = {},
-  _promises = [],
-  _callbacks = [],
-  client = new Faye.Client('http://localhost:8080/iq'),
-  subscription = client.subscribe('/channel', function(message) {
-    console.log(message);
-  });
+  client = new Faye.Client('http://localhost:8080/iq');
 
 Plug.getconfig = function (type, id) {
-  _promises.push(new Promise(function (resolve, reject) {
-    resolve(callback);
-  }));
-  client.publish('/getconfig', {type: type, id: id});
+  new Promise(function (resolve, reject) {
+    var subscribe = client.subscribe('/config', function(message) {
+      resolve(message);
+      subscribe.cancel();
+    });
+    client.publish('/getconfig', {type: type, id: id});
+  });
+}
+Plug.getstate = function (type, id) {
+  new Promise(function (resolve, reject) {
+    var subscribe = client.subscribe('/state', function(message) {
+      resolve(message);
+      subscribe.cancel();
+    });
+    client.publish('/getstate', {type: type, id: id});
+  });
+}
+Plug.subscribeTo = function (channel, fn) {
+  var subscription = client.subscribe(channel, function (message) {
+    fn(message);
+  })
+  return subscription;
 }
 
-client.subscribe('/config', function(message) {
-  console.log('Config:', message);
-});
-client.subscribe('/state', function(message) {
-  console.log('State:', message);
-});
 
-module.exports = Plug
+module.exports = Plug;

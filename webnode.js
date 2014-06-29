@@ -34,7 +34,8 @@ operator.subscribe('/react', function (msg) {
   iq.sendReact(msg);
 });
 
-iq.connect({ip: '127.0.0.1', iidk: '1', host: 'VM490'});
+//iq.connect({ip: '127.0.0.1', iidk: '1', host: 'VM490'});
+iq.listen('iidk');
 iq.on({}, function (msg) {
   if (msg.msg = 'Event') {
     operator.publish('/channel', msg);

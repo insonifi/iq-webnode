@@ -3,15 +3,16 @@
 var 
 MainSection = require('./MainSection.react'),
 React = require('react'),
+CamActions = require('../actions/CamActions'),
 CamStore = require('../stores/CamStore'),
-getCamState = function () { 
-  return { 
+requestCamList = function () { 
+  /*return { 
     allCams: CamStore.getAll() 
-  };
+  };*/
 },
 CamList = React.createClass({ 
   getInitialState: function() { 
-    return getCamState(); 
+    return {}; 
   },
   componentDidMount: function() { 
     CamStore.addChangeListener(this._onRefreshClick); 
@@ -28,7 +29,7 @@ CamList = React.createClass({
     );
   }, 
   _onRefreshClick: function() { 
-    this.setState(getCamState()); 
+    CamActions.getCamList();
   } 
 });
 

@@ -2,19 +2,23 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var CamConstants = require('../constants/CamConstants');
 
 var CamActions = {
-  refresh: function(text) {
+  getCamList: function () {
     AppDispatcher.handleViewAction({
       actionType: CamConstants.CAM_REFRESH,
-      list: list
     });
   },
-  ping: function(id) {
+  ping: function (id) {
     AppDispatcher.handleViewAction({
       actionType: CamConstants.CAM_PING,
       id: id
     });
-  }, 
-
+  },
+  getSnapshot: function (id) {
+    AppDispatcher.handleViewAction({
+      actionType: CamConstants.CAM_GETSNAPSHOT,
+      id: id
+    });
+  },
 }; 
 
 module.exports = CamActions;
