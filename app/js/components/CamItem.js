@@ -9,11 +9,11 @@ CamItem = React.createClass({
   render: function () {
     var cam = this.props.cam;
     return (
-      <li onClick={this._onPingClick}>{cam.id} {cam.name}</li>
+      <li onClick={this._onPingClick}>[{cam.id}] {cam.params.name}</li>
     );
   },
   _onPingClick: function () {
-    CamActions.ping(this.props.cam.ip);
+    CamActions.pingCam(this.props.cam.ip);
   }
 })
 

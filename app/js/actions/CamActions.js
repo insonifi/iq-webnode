@@ -4,10 +4,10 @@ var CamConstants = require('../constants/CamConstants');
 var CamActions = {
   getCamList: function () {
     AppDispatcher.handleViewAction({
-      actionType: CamConstants.CAM_REFRESH,
+      actionType: CamConstants.CAM_GETLIST,
     });
   },
-  ping: function (id) {
+  pingCam: function (id) {
     AppDispatcher.handleViewAction({
       actionType: CamConstants.CAM_PING,
       id: id

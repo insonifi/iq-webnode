@@ -4,12 +4,12 @@ var React = require('react'),
 CamItem = require('./CamItem'),
 MainSection = React.createClass({
   render: function () {
-        var allCams = this.props.allCams,
+        var camList = this.props.camList,
         camlist = [],
         key;
         
-    for (key in allCams) { 
-      camlist.push(<CamItem key={key} cam={allCams[key]} />); 
+    for (key in camList) { 
+      camlist.push(<CamItem key={key} cam={camList[key]} />); 
     } 
 
     return (

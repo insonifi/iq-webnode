@@ -2,12 +2,14 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
     EventEmitter = require('events').EventEmitter,
     CamConstants = require('../constants/CamConstants'),
     merge = require('react/lib/merge'),
+    Plug = require('../plug.js'),
 
     CHANGE_EVENT = 'change',
     EVENT_RECEIVED = 'event',
     _camlist = {},
     _event_list  = [],
     updateEvents = function (message) {
+      message.timestamp = (new Date()).valueOf();
       _event_list.push(message);
       _event_list = _event_list.slice(-10);
     },
@@ -33,6 +35,10 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
       removeEventsListener: function (callback) {
         this.removeListener(EVENT_RECEIVED, callback);
       },
+      addEvent: function (message) {
+        updateEvents(message);
+        CamStore.emitEventReceived();
+      },
       dispatcherIndex: AppDispatcher.register(function (payload) {
         var action = payload.action;
         switch (action.actionType) {
@@ -43,6 +49,12 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
             updateEvents(action.event);
             CamStore.emitEventReceived();
             break;
+          case CamConstants.CAM_GETLIST:
+            Plug.getconfig('CAM', '').then(function (list) {
+              _camlist = list;
+              CamStore.emitChange();
+            });
+            break;
         }
         return true;
       })
@@ -51,6 +63,9 @@ CamStore.getEvents = function () {
   return _event_list;
 }
 CamStore.getCamList = function () {
-  return _camlist;
+  return {
+    camList: _camlist
+  };
 }
+Plug.subscribeTo('/channel', CamStore.addEvent);
 module.exports = CamStore;

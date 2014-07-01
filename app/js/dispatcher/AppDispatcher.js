@@ -11,12 +11,6 @@ var Dispatcher = require('./Dispatcher'),
         source: 'VIEW_ACTION',
         action: action
       });
-    },
-    handleEventAction: function (action) {
-      this.dispatch({
-        source: 'EVENT_ACTION',
-        action: action
-      })
     }
   });
 

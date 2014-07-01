@@ -3,7 +3,7 @@ var Promise = require('es6-promise').Promise,
   client = new Faye.Client('http://localhost:8080/iq');
 
 Plug.getconfig = function (type, id) {
-  new Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var subscribe = client.subscribe('/config', function(message) {
       resolve(message);
       subscribe.cancel();
@@ -12,7 +12,7 @@ Plug.getconfig = function (type, id) {
   });
 }
 Plug.getstate = function (type, id) {
-  new Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var subscribe = client.subscribe('/state', function(message) {
       resolve(message);
       subscribe.cancel();

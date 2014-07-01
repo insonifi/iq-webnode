@@ -5,29 +5,27 @@ MainSection = require('./MainSection.react'),
 React = require('react'),
 CamActions = require('../actions/CamActions'),
 CamStore = require('../stores/CamStore'),
-requestCamList = function () { 
-  /*return { 
-    allCams: CamStore.getAll() 
-  };*/
-},
 CamList = React.createClass({ 
   getInitialState: function() { 
-    return {}; 
+    return CamStore.getCamList(); 
   },
   componentDidMount: function() { 
-    CamStore.addChangeListener(this._onRefreshClick); 
+    CamStore.addChangeListener(this._onListChange); 
   },
   componentWillUnmount: function() { 
-    CamStore.removeChangeListener(this._onRefreshClick); 
+    CamStore.removeChangeListener(this._onListChange); 
   },
   render: function() {
     return (
       <div>
-        <button onClick={this._onRefreshClick}>Refresh</button>
-        <MainSection allCams={this.state.allCams} />
+        <button onClick={this._onRefreshClick}>Fetch List</button>
+        <MainSection camList={this.state.camList} />
       </div>
     );
-  }, 
+  },
+  _onListChange: function () {
+    this.setState(CamStore.getCamList());
+  },
   _onRefreshClick: function() { 
     CamActions.getCamList();
   } 
