@@ -31,7 +31,7 @@ operator.subscribe('/event', function (msg) {
   iq.sendEvent(msg);
 });
 operator.subscribe('/react', function (msg) {
-  iq.sendReact(msg);
+  iq.sendCoreReact(msg);
 });
 
 iq.connect({ip: '192.168.100.168', iidk: '1', host: 'GATE'});
@@ -41,4 +41,6 @@ iq.on({}, function (msg) {
     operator.publish('/channel', msg);
   }
 });
-
+iq.on({type: 'CAM', action: 'FRAME_SENT'}, function (msg) {
+  operator.publish('/frame', msg.params.data);
+})

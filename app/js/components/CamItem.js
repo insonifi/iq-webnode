@@ -2,18 +2,24 @@
 
 var React = require('react'),
 CamActions = require('../actions/CamActions'),
+CamItemSnapshot = require('./CamItemSnapshot'),
 CamItem = React.createClass({
   propTypes: {
     cam: React.PropTypes.object.isRequired
   },
   render: function () {
     var cam = this.props.cam;
+    
     return (
-      <li onClick={this._onPingClick}>[{cam.id}] {cam.params.name}</li>
+      <li>
+        <span>[{cam.id}]</span><span>{cam.params.name}</span>
+        <button onClick={this._onClick}>snapshot</button>
+        <CamItemSnapshot frame={cam.frame} />
+      </li>
     );
   },
-  _onPingClick: function () {
-    CamActions.pingCam(this.props.cam.ip);
+  _onClick: function () {
+    CamActions.getSnapshot(this.props.cam.id);
   }
 })
 

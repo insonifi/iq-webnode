@@ -3,7 +3,6 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
     CamConstants = require('../constants/CamConstants'),
     merge = require('react/lib/merge'),
     Plug = require('../plug.js'),
-
     CHANGE_EVENT = 'change',
     EVENT_RECEIVED = 'event',
     _camlist = {},
@@ -15,6 +14,9 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
     },
     updateCamList = function (list) {
       _camlist = list;
+    },
+    handlers = {
+      
     },
     CamStore = merge(EventEmitter.prototype, {
       emitEventReceived: function () {
@@ -35,9 +37,16 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
       removeEventsListener: function (callback) {
         this.removeListener(EVENT_RECEIVED, callback);
       },
-      addEvent: function (message) {
+      handleEvent: function (message) {
         updateEvents(message);
         CamStore.emitEventReceived();
+        
+        if (message.type === 'CAM' && message.action === 'FRAME_SENT') {
+          var cam = _camlist.filter(function(item) {
+            return item.id === message.id
+          });
+          cam.frame = message.data;
+        }
       },
       dispatcherIndex: AppDispatcher.register(function (payload) {
         var action = payload.action;
@@ -55,6 +64,19 @@ var AppDispatcher = require('../dispatcher/AppDispatcher'),
               CamStore.emitChange();
             });
             break;
+          case CamConstants.CAM_GETSNAPSHOT:
+            Plug.getsnapshot(action.id).then(function (frame) {
+              var i = _camlist.length,
+                cam;
+              for (;i--;) {
+                cam = _camlist[i];
+                if (cam.id === action.id) {
+                  cam.frame = frame;
+                }
+              }
+              CamStore.emitChange();
+            });
+            break;
         }
         return true;
       })
@@ -67,5 +89,5 @@ CamStore.getCamList = function () {
     camList: _camlist
   };
 }
-Plug.subscribeTo('/channel', CamStore.addEvent);
+Plug.subscribeTo('/channel', CamStore.handleEvent);
 module.exports = CamStore;

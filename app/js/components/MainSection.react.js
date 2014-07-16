@@ -7,7 +7,6 @@ MainSection = React.createClass({
         var camList = this.props.camList,
         camlist = [],
         key;
-        
     for (key in camList) { 
       camlist.push(<CamItem key={key} cam={camList[key]} />); 
     } 
@@ -19,3 +18,4 @@ MainSection = React.createClass({
 });
 
 module.exports = MainSection;
+

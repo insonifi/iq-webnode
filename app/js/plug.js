@@ -20,6 +20,15 @@ Plug.getstate = function (type, id) {
     client.publish('/getstate', {type: type, id: id});
   });
 }
+Plug.getsnapshot = function (id) {
+  return new Promise(function (resolve, reject) {
+    var subscribe = client.subscribe('/frame', function(message) {
+      resolve(message);
+      subscribe.cancel();
+    });
+    client.publish('/react', {type: 'CAM', id: id, action: 'GET_FRAME'});
+  });
+}
 Plug.subscribeTo = function (channel, fn) {
   var subscription = client.subscribe(channel, function (message) {
     fn(message);
