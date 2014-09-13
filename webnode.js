@@ -16,16 +16,20 @@ wss.broadcast = function (message) {
   var clients = Object.keys(this.clients),
       i = clients.length;
   for (; i--;) {
-    this.clients[clients[i]].send(message);
+    this.clients[clients[i]].send(JSON.stringify(message));
   }
 }
-
+wss.on('connection', function (ws) {
+  ws.on('message', function (message) {
+    iq.sendEvent(JSON.parse(message));
+  });
+})
 
 iq.connect({ip: '192.168.122.183', iidk: '3', host: 'DUKE-PC'})
 .then(function () {
   iq.on({}, function (msg) {
     console.log(msg.type, msg.id, msg.action);
-    wss.broadcast(JSON.stringify(msg));
+    wss.broadcast(msg);
   });
 }, function (e) { console.log(e); });
 //iq.listen('iidk');
