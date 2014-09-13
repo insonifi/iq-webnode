@@ -9,25 +9,15 @@
       "email": "mail@gmail.com"
     }
   ],
-  "scripts": {
-    "test": "vows --spec"
-  },
-  "main": "./lib/iq-web",
+  "main": "./webnode",
   "repository": {
     "type": "git",
     "url": "https://github.com/insonifi/iq-webnode"
   },
-  "scripts": {
-    "start": "jsxc --watch app/js/",
-    "build": "jsxc app/js/"
-  },
   "dependencies": {
-    "express": ">=4.3",
-    "faye": ">=1.0",
-    "iq-node": "insonifi/iq-node"
-  },
-  "devDependencies": {
-    "vows": ">=0.7"
+    "express": "",
+    "iq-node": "insonifi/iq-node",
+    "ws": ""
   },
   "engines": {
     "node": ">=0.10"
