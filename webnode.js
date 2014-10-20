@@ -15,20 +15,26 @@ app.listen(8000);
 wss.broadcast = function (message) {
   var clients = Object.keys(this.clients),
       i = clients.length;
-  for (; i--;) {
+  while(i--) {
     this.clients[clients[i]].send(JSON.stringify(message));
   }
 }
 wss.on('connection', function (ws) {
   ws.on('message', function (message) {
-    iq.sendEvent(JSON.parse(message));
+    var p_message = JSON.parse(message);
+    if (p_message.msg === 'Event') {
+      iq.sendEvent(p_message);
+    }
+    if (p_message.msg === 'React') {
+      iq.sendCoreReact(p_message);
+    }
   });
 })
 
-iq.connect({ip: '192.168.122.183', iidk: '3', host: 'DUKE-PC'})
+iq.connect({ip: '192.168.122.183', iidk: '0', host: 'DUKE-PC'})
 .then(function () {
   iq.on({}, function (msg) {
-    console.log(msg.type, msg.id, msg.action);
+    //console.log(msg.type, msg.id, msg.action);
     wss.broadcast(msg);
   });
 }, function (e) { console.log(e); });
