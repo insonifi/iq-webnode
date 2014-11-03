@@ -30,12 +30,11 @@ wss.on('connection', function (ws) {
     }
   });
 })
-
+iq.on({}, function (msg) {
+  //console.log(msg.type, msg.id, msg.action);
+  wss.broadcast(msg);
+});
 iq.connect({ip: '192.168.122.183', iidk: '0', host: 'DUKE-PC'})
 .then(function () {
-  iq.on({}, function (msg) {
-    //console.log(msg.type, msg.id, msg.action);
-    wss.broadcast(msg);
-  });
 }, function (e) { console.log(e); });
 //iq.listen('iidk');
