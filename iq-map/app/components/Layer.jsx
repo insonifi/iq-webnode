@@ -2,8 +2,8 @@
 var React = require('react');
 var _ = require('lodash');
 var objectList = {
-  CAM: React.createFactory(require('app/components/Camera.react')),
-  Image: React.createFactory(require('app/components/Image.react'))
+  CAM: React.createFactory(require('../components/Camera')),
+  Image: React.createFactory(require('../components/Image'))
 }
 var tsf_template = _.template('translate(${x}px, ${y}px) scale(${scale})');
 //var tsf_template = _.template('scale(${scale})');
@@ -48,7 +48,7 @@ var Layer = React.createClass({
       <img src={description.bg} />
       {
         _config.map(function (obj) {
-          return objectList[obj.type]({config: obj.config, key: obj.type + obj.config.id});
+          return objectList[obj.type]({config: obj.config, key: obj.type + obj.id});
         }).value()
 
       }

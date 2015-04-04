@@ -1,7 +1,7 @@
 'use strict'
 var WebSocket = require('ws');
-var MapDispatcher = require('app/dispatcher/MapDispatcher');
-var MapConstants = require('app/constants/MapConstants');
+var MapDispatcher = require('../dispatcher/MapDispatcher');
+var MapConstants = require('../constants/MapConstants');
 var ws = new WebSocket('ws://${host}:8787'.replace('${host}', window.location.hostname));
 
 

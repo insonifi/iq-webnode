@@ -1,8 +1,8 @@
 'use strict'
-var MapDispatcher = require('app/dispatcher/MapDispatcher');
-var MapConstants = require('app/constants/MapConstants');
-var IqNode = require('app/utils/IqNode');
-var MapConfig = require('app/utils/MapConfig');
+var MapDispatcher = require('../dispatcher/MapDispatcher');
+var MapConstants = require('../constants/MapConstants');
+var IqNode = require('../utils/IqNode');
+var MapConfig = require('../utils/MapConfig');
 var EventEmitter = require('events').EventEmitter;
 var _ = require('lodash');
 
@@ -88,7 +88,7 @@ MapStore.dispatchToken = MapDispatcher.register(function(payload) {
   switch(action.type) {
 
     case ActionTypes.RECV_MSG:
-      _processMessage(action.body);
+      processMessage(action.body);
       updateAlarmedLayers();
       MapStore.emitStateUpdate();
       break;
@@ -113,7 +113,7 @@ MapStore.dispatchToken = MapDispatcher.register(function(payload) {
 
 });
 
-function _processMessage (message) {
+function processMessage (message) {
   var objectState = {};
   if (message.type === 'MAPGIS' && message.action === 'OBJECT_STATE') {
     var type = message.params.obj_type,
@@ -136,7 +136,7 @@ function updateAlarmedLayers () {
     var state = {};
     for (i; i > -1; i -= 1) {
       obj = config[i];
-      state = MapStore.getState(obj.type, obj.config.id);
+      state = MapStore.getState(obj.type, obj.id);
       if (state.Alarmed) {
         result[key] = true;
         break;

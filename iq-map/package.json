@@ -1,0 +1,32 @@
+{
+  "name": "iq-map",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^0.9.1",
+    "exports-loader": "^0.6.2",
+    "jsx-loader": "^0.12.2",
+    "legacy-loader": "0.0.2",
+    "less": "^2.4.0",
+    "less-loader": "^2.2.0",
+    "style-loader": "^0.9.0",
+    "webpack": "^1.7.3",
+    "worker-loader": "^0.5.7"
+  },
+  "dependencies": {
+    "d3": "^3.5.5",
+    "flux": "^2.0.1",
+    "lodash": "^3.6.0",
+    "material-ui": "^0.7.2",
+    "react": "^0.13.1",
+    "react-inlinesvg": "^0.3.0",
+    "react-svg": "^1.0.0",
+    "react-tap-event-plugin": "^0.1.6"
+  }
+}

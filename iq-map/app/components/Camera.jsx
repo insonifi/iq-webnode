@@ -1,11 +1,9 @@
 'use strict'
 var React = require('react');
-var Paper = require('material-ui').Paper;
-var SvgIcon = require('material-ui').SvgIcon;
-var IconButton = require('material-ui').IconButton;
-var ActionMenu = require('app/components/ActionMenu.react');
-var MapStore = require('app/stores/MapStore');
-var CameraAction = require('app/actions/CameraActionCreators.js');
+var {Paper, SvgIcon, IconButton} = require('material-ui');
+var ActionMenu = require('../components/ActionMenu');
+var MapStore = require('../stores/MapStore');
+var CameraAction = require('../actions/CameraActionCreators.js');
 
 var timeout = 1000;
 

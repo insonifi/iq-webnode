@@ -1,6 +1,6 @@
 'use strict'
-var MapDispatcher = require('app/dispatcher/MapDispatcher');
-var MapConstants = require('app/constants/MapConstants');
+var MapDispatcher = require('../dispatcher/MapDispatcher');
+var MapConstants = require('../constants/MapConstants');
 
 
 var ActionTypes = MapConstants.ActionTypes;

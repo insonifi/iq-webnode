@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Layer One",
+    "bg": "http://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg",
+    "config": [
+      {
+        "type": "CAM",
+        "id": 3,
+        "config": {
+          "x": 100,
+          "y": 200
+        }
+      }
+    ]
+  },
+  {
+    "name": "Layer Two",
+    "bg": "http://upload.wikimedia.org/wikipedia/commons/e/e2/MessierStarChart.svg",
+    "config": [
+      {
+        "type": "CAM",
+        "id": 1,
+        "config": {
+          "x": 50,
+          "y": 150
+        }
+      },
+      {
+        "type": "CAM",
+        "id": 2,
+        "config": {
+          "x": 200,
+          "y": 100
+        }
+      }
+    ]
+  }
+]

@@ -1,16 +1,14 @@
 'use strict'
 var React = require('react');
-var LeftNav = require('material-ui').LeftNav;
-var RaisedButton = require('material-ui').RaisedButton;
-var Paper = require('material-ui').Paper;
+var { LeftNav, RaisedButton, Paper } = require('material-ui');
 
-var SVGLayerList = require('app/components/SVGLayerList.react');
-var Layer = require('app/components/Layer.react');
-var Viewport = require('app/components/Viewport.react');
+var SVGLayerList = require('../components/SVGLayerList');
+var Layer = require('../components/Layer');
+var Viewport = require('../components/Viewport');
 
 var _ = require('lodash');
-var MapStore = require('app/stores/MapStore');
-var MapActions = require('app/actions/MapActionCreators');
+var MapStore = require('../stores/MapStore');
+var MapActions = require('../actions/MapActionCreators');
 var Map = React.createClass({
   getInitialState: function () {
     return {
@@ -51,18 +49,14 @@ var Map = React.createClass({
         <Viewport>
           <Layer desc={layer} />
         </Viewport>
+        <SVGLayerList src='img/overview.svg' 
+          layerNames={layerNames} onChange={this._changeLayer}
+          prefix={'_'}
+          selectedIndex={active}
+          alarmedList={layerAlarmed} />
       </div>
     )
   },
-  
-  
-          
-//        <SVGLayerList src='img/overview.svg' 
-//          layerNames={layerNames} onChange={this._changeLayer}
-//          prefix={'_'}
-//          selectedIndex={active}
-//          alarmedList={layerAlarmed}
-//          x={800} y={400} />
   _onChange: function () {
   },
   
