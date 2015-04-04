@@ -14,8 +14,7 @@ var Map = React.createClass({
     return {
       active: 0,
       layerNames: [],
-      layers: [],
-      layerAlarmed: {}
+      layers: []
     };
   },
   displayName: 'Map',
@@ -32,7 +31,6 @@ var Map = React.createClass({
   },
   render: function () {
     var layerNames = this.state.layerNames;
-    var layerAlarmed = this.state.layerAlarmed;
     var active = this.state.active;
     var layer = this.state.layers[active];
     var items = _(layerNames).map(function (item) {
@@ -47,13 +45,11 @@ var Map = React.createClass({
           onChange={this._changeLayer} 
           header={<Paper>Layers</Paper>} />
         <Viewport>
-          <Layer desc={layer} />
+          <Layer desc={layer} minZoom={0.2} maxZoom={5} />
         </Viewport>
         <SVGLayerList src='img/overview.svg' 
           layerNames={layerNames} onChange={this._changeLayer}
-          prefix={'_'}
-          selectedIndex={active}
-          alarmedList={layerAlarmed} />
+          selectedIndex={active}/>
       </div>
     )
   },

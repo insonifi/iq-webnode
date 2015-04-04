@@ -1,5 +1,6 @@
 'use strict'
 var React = require('react');
+var cx = require('classnames');
 var {Paper, SvgIcon, IconButton} = require('material-ui');
 var ActionMenu = require('../components/ActionMenu');
 var MapStore = require('../stores/MapStore');
@@ -21,16 +22,17 @@ var Camera = React.createClass({
     MapStore.removeStateUpdateListener(this._onUpdate);
   },
   render: function () {
-    var cx = React.addons.classSet;
     var config = this.props.config;
     var x = config.x;
     var y = config.y;
     var name = config.name;
     var state = this.state;
     var style = {
-        top: y,
-        left: x
-      };
+      position: 'absolute',
+      top: y,
+      left: x,
+      transform: 'translate(-50%, -50%)'
+    };
     var svgStyle = {
         opacity:1,
         fill:'none',
@@ -49,8 +51,8 @@ var Camera = React.createClass({
         alarm: state.Alarmed,
       });
     var actions = this.actions('CAM', config.id);
-    return  <div>
-      <Paper style={style} circle={true} className={classes}
+    return  <div style={style}>
+      <Paper circle={true} className={classes}
               onClick={this.toggleMenu}>
         <IconButton tooltip={name}>
           <SvgIcon>
@@ -93,7 +95,7 @@ var Camera = React.createClass({
   },
   
   _onUpdate: function () {
-    this.replaceState(MapStore.getState('CAM', this.props.config.id));
+    this.replaceState(MapStore.getState('CAM', this.props.id));
   },
   
   toggleMenu: function () {

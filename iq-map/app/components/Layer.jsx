@@ -48,7 +48,7 @@ var Layer = React.createClass({
       <img src={description.bg} />
       {
         _config.map(function (obj) {
-          return objectList[obj.type]({config: obj.config, key: obj.type + obj.id});
+          return objectList[obj.type]({config: obj.config, id: obj.id, key: obj.type + obj.id});
         }).value()
 
       }
@@ -83,9 +83,12 @@ var Layer = React.createClass({
   
   _zoom: function (e) {
     var s = Math.sign(e.deltaY);
-    var dscale = 0.05;
+    var dscale = 0.1;
     var oscale = this.state.scale;
     var nscale = oscale + dscale * s;
+    if (nscale > this.props.maxZoom || nscale < this.props.minZoom) {
+      return;
+    }
     var rect = e.currentTarget.getBoundingClientRect();
     var w = rect.width / oscale;
     var h = rect.height / oscale;

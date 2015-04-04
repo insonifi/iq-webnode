@@ -2,11 +2,11 @@ var http = require('http'),
   iq = require('iq-node'),
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
-  wss = new WebSocketServer({port: 8080}),
+  wss = new WebSocketServer({port: 8787}),
   express = require('express'),
   app = express();
 
-app.use(express.static('iq-webnode-app'))
+app.use(express.static('iq-map'))
 app.use(function(req, res, next){
   res.status(404).send('Sorry cant find that!');
 });

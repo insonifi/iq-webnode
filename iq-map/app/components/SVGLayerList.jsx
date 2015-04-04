@@ -2,44 +2,42 @@
 var React = require('react'); 
 var ISVG = require('react-inlinesvg');
 var d3 = require('d3');
-var {Paper}= require('material-ui');
+var {Paper, RaisedButton}= require('material-ui');
 var _ = require('lodash');
 
 var ALARMED = '#ff2323';
 var HOVER = '#11aaff';
-var INACTIVE = '#000000';
+var ACTIVE = 0.6;
+var INACTIVE = 0.2;
 
 var MapStore = require('../stores/MapStore');
 
 var SVGLayerList = React.createClass({
   getInitialState: function () {
     return {
-/*      svg: Snap()*/
+      closed: true,
+      selectors: []
     }
   },
   displayName: 'SVGLayerList',
   componentDidMount: function () { 
     MapStore.addStateUpdateListener(this._onState);
   },
-  componentWillUnmounte: function () {
+  componentWillUnmount: function () {
     MapStore.removeStateUpdateListener(this._onState);
   },
   componentWillReceiveProps: function (props) {
   },
-  componentDidUpdate: function (prevProps, prevState) {
-    var prefix = this.props.prefix;
-    var selected = this.props.selectedIndex;
-/*
-    this.state.svg
-      .selectAll('.' + prefix)
-      .forEach(this._refreshStyle);
-*/
-    
-  },
   render: function () {
-    return <Paper zDepth={3} className='overview'> 
-      <ISVG src={this.props.src} onLoad={this._loadCallback} style='padding: 30px' />
-    </Paper>
+    var style = {
+      transform: this.state.closed ? 'translate(100%,-50%)' : 'translate(0,-50%)'
+    }
+    return <div className='overview' style={style}>
+      <RaisedButton zDepth={3} className='overview-title' label='Overview' onClick={this.toggle}/>
+      <Paper zDepth={3}> 
+        <ISVG src={this.props.src} onLoad={this._loadCallback} style='padding: 30px' />
+      </Paper>
+    </div>
   },
   _loadCallback: function () {
     var svg = this.getDOMNode().querySelector('svg');
@@ -55,7 +53,7 @@ var SVGLayerList = React.createClass({
       let selector = selectors[key];
       selector
         .attr({
-          'fill-opacity': 0.2,
+          'fill-opacity': INACTIVE,
           style: 'pointer-events: all',
           stroke: HOVER,
           'stroke-width': 2,
@@ -70,6 +68,10 @@ var SVGLayerList = React.createClass({
     this.setState({
       selectors
     });
+    selectors[this.props.selectedIndex]
+      .attr({
+        'fill-opacity': ACTIVE
+      });
   },
     
   _mouseIn: function (key) {
@@ -93,40 +95,26 @@ var SVGLayerList = React.createClass({
       let selected = this.props.selectedIndex;
       this.state.selectors[selected]
         .transition().attr({
-          'fill-opacity': 0.2
+          'fill-opacity': INACTIVE
         })
     }
     {
       let selected = this.props.selectedIndex;
       this.state.selectors[key]
         .transition().attr({
-          'fill-opacity': 0.6
+          'fill-opacity': ACTIVE
         })
     }
     this.props.onChange(null, key, null);
   },
-    
-  _refreshStyle: function (el) {
-    var pref_length = this.props.prefix.length;
-    var selected = this.props.selectedIndex;
-    var isSelected = selected === key;
-    var isAlarmed = this.props.alarmedList[key];
-    var isVisible = isSelected || isAlarmed;
-    d3(el)
-      .attr({
-      })
-      .transition.attr({
-        fill: isAlarmed ? ALARMED : INACTIVE,
-        'fill-opacity': isSelected ? 0.6 : 0.2
-      }, 100);
+  
+  toggle: function () {
+    this.setState({
+      closed: !this.state.closed
+    });
   },
   
   _onState: function () {
-/*
-    this.setState({
-      layerAlarmed: MapStore.getAlarmed()
-    });
-*/
     var layersAlarmed =  MapStore.getAlarmed();
     _(this.state.selectors).forEach((function (n, key) {
       this.state.selectors[key]

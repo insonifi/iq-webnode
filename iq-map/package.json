@@ -20,6 +20,7 @@
     "worker-loader": "^0.5.7"
   },
   "dependencies": {
+    "classnames": "^1.2.0",
     "d3": "^3.5.5",
     "flux": "^2.0.1",
     "lodash": "^3.6.0",
