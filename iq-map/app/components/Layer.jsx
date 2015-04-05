@@ -1,5 +1,6 @@
 'use strict'
 var React = require('react');
+var {FloatingActionButton} = require('material-ui');
 var _ = require('lodash');
 var objectList = {
   CAM: React.createFactory(require('../components/Camera')),
@@ -17,7 +18,8 @@ var Layer = React.createClass({
       y: 0,
       dx: 0,
       dy: 0,
-      scale: 1
+      scale: 0,
+      tscale: 1
     }
   },
   displayName: 'Layer',
@@ -28,10 +30,11 @@ var Layer = React.createClass({
     var _config = _(description.config);
     var style = {
       position: 'absolute',
+      'transform-origin': '0 0',
       transform: tsf_template({
         x: this.state.x  + this.state.dx,
         y: this.state.y + this.state.dy,
-        scale: this.state.scale
+        scale: this.state.tscale
       }),
       background: 'aliceblue'
     };
@@ -44,7 +47,8 @@ var Layer = React.createClass({
       onMouseDown={this._startDrag}
       onMouseUp={this._stopDrag}
       onWheel={this._zoom} >
-        
+      
+      <FloatingActionButton className='overview-fit' mini={true} onClick={this._fit} />
       <img src={description.bg} />
       {
         _config.map(function (obj) {
@@ -72,9 +76,15 @@ var Layer = React.createClass({
   },
   
   _Drag: function (e) {
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var rect = this.getDOMNode().getBoundingClientRect();
+    
     var s = this.state.scale;
     var dx = e.clientX - this.state.ox;
     var dy = e.clientY - this.state.oy;
+    
+    
     this.setState({
       x: dx,
       y: dy,
@@ -82,28 +92,39 @@ var Layer = React.createClass({
   },
   
   _zoom: function (e) {
-    var s = Math.sign(e.deltaY);
-    var dscale = 0.1;
-    var oscale = this.state.scale;
-    var nscale = oscale + dscale * s;
-    if (nscale > this.props.maxZoom || nscale < this.props.minZoom) {
+    var s = -Math.sign(e.deltaY);
+    var otscale = this.state.tscale;
+    var scale = this.state.scale + 0.1 * s;
+    var tscale = Math.exp(scale);
+    if (tscale > this.props.maxZoom || tscale < this.props.minZoom) {
       return;
     }
+    var dscale = Math.abs(otscale - tscale);
     var rect = e.currentTarget.getBoundingClientRect();
-    var w = rect.width / oscale;
-    var h = rect.height / oscale;
-    var x = rect.left / oscale;
-    var y = rect.top / oscale;
-    var rx = (e.clientX / oscale) - x;
-    var ry = (e.clientY / oscale) - y;
-    var dx = (dscale * w) * s * (0.5 - rx/w);
-    var dy = (dscale * h) * s * (0.5 - ry/h);
+    var w = rect.width / otscale;
+    var h = rect.height / otscale;
+    var rx = (e.clientX - rect.left) / otscale;
+    var ry = (e.clientY - rect.top) / otscale;
+    var dx = (dscale * w) * s * ((0.5 - rx)/w);
+    var dy = (dscale * h) * s * ((0.5 - ry)/h);
     this.setState({
-      scale: nscale,
+      scale,
+      tscale,
       dx: this.state.dx + dx,
       dy: this.state.dy + dy,
     });
-  }                          
+  },
+  
+  _fit: function () {
+    var node = this.getDOMNode();
+    var rect = node.getBoundingClientRect();
+    var scale = Math.min(window.innerWidth / node.clientWidth, window.innerHeight / node.clientHeight);
+    this.setState({
+      scale,
+      x: 0,
+      y: 0
+    });
+  }
 });
 
 module.exports = Layer;

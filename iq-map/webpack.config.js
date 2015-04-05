@@ -1,3 +1,4 @@
+var CompressionPlugin = require("compression-webpack-plugin");
 module.exports = {
   entry: {
     app: './app/index'
@@ -19,5 +20,14 @@ module.exports = {
     modulesDirectories: ['node_modules'],
     extensions: ['', '.js', '.jsx']
   },
-  devtool: 'source-map'
+  devtool: 'source-map',
+  plugins: [
+        new CompressionPlugin({
+            asset: "{file}.gz",
+            algorithm: "gzip",
+            regExp: /\.js$|\.html$/,
+            threshold: 10240,
+            minRatio: 0.8
+        })
+    ]
 }

@@ -6,10 +6,18 @@ var http = require('http'),
   express = require('express'),
   app = express();
 
-app.use(express.static('iq-map'))
-app.use(function(req, res, next){
+app.get('*.js', function (req, res, next) {
+  req.url = req.url + '.gz';
+  res.set('Content-Encoding', 'gzip');
+  next();
+});
+  
+app.use(express.static('iq-map'));
+
+app.use(function (req, res, next){
   res.status(404).send('Sorry cant find that!');
 });
+
 app.listen(8000);
 
 wss.broadcast = function (message) {
