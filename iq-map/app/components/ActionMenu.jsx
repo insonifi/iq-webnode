@@ -22,15 +22,15 @@ var ActionMenu = React.createClass({
     var containerStyle = {
       position: 'absolute',
       display: isVisible ? 'inline-block' : 'none',
-      left: this.props.x,
-      top: this.props.y
+      left:  0,
+      top: 0,
     };
     var children = isVisible ? _actions.map(function (action) {
       var itemStyle = {
         position: 'absolute',
-        transform: 'translate(-25%, -25%)',
         left:  Math.sin(angularInterval * (i - 1)) * radius,
-        top: Math.cos(angularInterval * (i - 1)) * radius
+        top: Math.cos(angularInterval * (i - 1)) * radius,
+        transform: 'translate(-50%, -50%)',
       };
       i -= 1;
 

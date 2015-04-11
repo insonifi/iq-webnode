@@ -1,6 +1,9 @@
 'use strict'
 var MapDispatcher = require('../dispatcher/MapDispatcher');
 var MapConstants = require('../constants/MapConstants');
+var workerBlob = new Blob([require('raw!./csvWorker')]);
+var blobURL = URL.createObjectURL(workerBlob);
+var csvProcessor = new Worker(blobURL);
 
 
 var ActionTypes = MapConstants.ActionTypes;
@@ -19,7 +22,10 @@ module.exports = {
       xhr.onreadystatechange = (function () {
         if (this.readyState === 4) {
           if (this.status === 200) {
-            resolve(JSON.parse(this.response));
+            csvProcessor.postMessage(this.response);
+            csvProcessor.onmessage = function(e) {
+              resolve(e.data);
+            };
           } else {
             reject(this.status);
           }

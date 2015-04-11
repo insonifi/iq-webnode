@@ -1,8 +1,8 @@
 'use strict'
 var React = require('react');
-var { LeftNav, RaisedButton, Paper } = require('material-ui');
+var { LeftNav, RaisedButton, Paper, FloatingActionButton } = require('material-ui');
 
-var SVGLayerList = require('../components/SVGLayerList');
+var SVGLayerSelector = require('../components/SVGLayerSelector');
 var Layer = require('../components/Layer');
 var Viewport = require('../components/Viewport');
 
@@ -12,9 +12,9 @@ var MapActions = require('../actions/MapActionCreators');
 var Map = React.createClass({
   getInitialState: function () {
     return {
-      active: 0,
+      selected: 0,
       layerNames: [],
-      layers: []
+      layers: [],
     };
   },
   displayName: 'Map',
@@ -22,45 +22,52 @@ var Map = React.createClass({
     MapStore.addChangeListener(this._onChange);
     MapStore.addStateUpdateListener(this._onState);
     MapStore.addConfigListener(this._onConfig);
-    MapStore.requestMapConfig();
-    this.refs.LayerList.close();
   },
   componentWillUnmounte: function () {
     MapStore.removeChangeListener(this._onChange);
     MapStore.removeStateUpdateListener(this._onState);
+    MapStore.removeConfigListener(this._onState);
   },
   render: function () {
     var layerNames = this.state.layerNames;
-    var active = this.state.active;
-    var layer = this.state.layers[active];
-    var items = _(layerNames).map(function (item) {
-      return {text: item};
-    }).value();
-    
+    var hasLayers = (layerNames.length > 0);
+    var selected = this.state.selected;
+    var layer = this.state.layers[selected];
+        
     return (
       <div>
-        <RaisedButton onClick={this._toggle} label={layerNames[active]} className='layer-title' />
-      
-        <LeftNav ref='LayerList' menuItems={items}
-          onChange={this._changeLayer} 
-          header={<Paper>Layers</Paper>} />
+        {hasLayers ? <RaisedButton onClick={this._toggle} label={layerNames[selected]} className='layer-title' /> : null}
+        
+        <FloatingActionButton
+          className='overview-fit'
+          circle={true}
+          mini={true}
+          onClick={this._fit} ><img className='overview-icon' src='/img/fit.svg' /></FloatingActionButton>
+        
         <Viewport>
-          <Layer desc={layer} minZoom={0.2} maxZoom={5} />
+          <Layer ref='Layer' desc={layer} maxZoom={5} />
         </Viewport>
-        <SVGLayerList src='img/overview.svg' 
-          layerNames={layerNames} onChange={this._changeLayer}
-          selectedIndex={active}/>
+        {hasLayers ?
+          <SVGLayerSelector
+            ref='LayerList'
+            src='/img/overview.svg'
+            layerNames={layerNames}
+            selectedIndex={selected} />
+          : null}
       </div>
     )
   },
   _onChange: function () {
+    this.setState({
+      selected: MapStore.getSelected()
+    });
   },
   
   _onConfig: function () {
     var _config = _(MapStore.getMapConfig());
     this.setState({
       layerNames: _config.pluck('name').value(),
-      layers: _config.value()
+      layers: _config.value(),
     });
   },
   
@@ -71,23 +78,15 @@ var Map = React.createClass({
   },
   
   _changeLayer: function (e, key, payload) {
-    this.setState({active: key});
-    this.refs.LayerList.close();
+    this.setState({selected: key});
   },
   _toggle: function () {
     this.refs.LayerList.toggle();
-  }  
+  },
+  
+  _fit: function () {
+    this.refs.Layer.fit();
+  }
 });
 
 module.exports = Map;
-
-
-/*
-        <ul>
-          {
-            _(layerNames).map(function (name) {
-              return <li key={name}>{name}</li>
-            }).value()
-          }
-        </ul>
-*/

@@ -31,7 +31,7 @@ var Camera = React.createClass({
       position: 'absolute',
       top: y,
       left: x,
-      transform: 'translate(-50%, -50%)'
+      transform: 'translate(-50%, -50%)',
     };
     var svgStyle = {
         opacity:1,
@@ -56,21 +56,21 @@ var Camera = React.createClass({
               onClick={this.toggleMenu}>
         <IconButton tooltip={name}>
           <SvgIcon>
-                <rect
-                   ry='3'
-                   y='4'
-                   x='1'
-                   height='16'
-                   width='16'
-                   style={svgStyle} />
-                <rect
-                   ry='0.15'
-                   y='7'
-                   x='19'
-                   height='10'
-                   width='4'
-                   style={svgStyle} />
-            </SvgIcon>
+            <rect
+               ry='3'
+               y='4'
+               x='1'
+               height='16'
+               width='16'
+               style={svgStyle} />
+            <rect
+               ry='0.15'
+               y='7'
+               x='19'
+               height='10'
+               width='4'
+               style={svgStyle} />
+          </SvgIcon>
         </IconButton>
       </Paper>
       <ActionMenu ref='actionMenu' x={x} y={y} actions={actions} />

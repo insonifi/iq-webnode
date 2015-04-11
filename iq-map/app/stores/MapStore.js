@@ -55,7 +55,7 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
   },
   
   requestMapConfig: function () {
-    MapConfig.requestMapConfig('map.json');
+    MapConfig.requestMapConfig('map.csv');
   },
   
   getMapConfig: function () {
@@ -145,5 +145,7 @@ function updateAlarmedLayers () {
     return result;
   }, {});
 };
+
+MapStore.requestMapConfig();
 
 module.exports = MapStore;

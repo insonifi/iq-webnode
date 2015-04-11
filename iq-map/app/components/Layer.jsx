@@ -1,6 +1,5 @@
 'use strict'
 var React = require('react');
-var {FloatingActionButton} = require('material-ui');
 var _ = require('lodash');
 var objectList = {
   CAM: React.createFactory(require('../components/Camera')),
@@ -19,6 +18,7 @@ var Layer = React.createClass({
       dx: 0,
       dy: 0,
       scale: 0,
+      minScale: 0,
       tscale: 1
     }
   },
@@ -30,7 +30,7 @@ var Layer = React.createClass({
     var _config = _(description.config);
     var style = {
       position: 'absolute',
-      'transform-origin': '0 0',
+      transformOrigin: '0 0',
       transform: tsf_template({
         x: this.state.x  + this.state.dx,
         y: this.state.y + this.state.dy,
@@ -48,8 +48,7 @@ var Layer = React.createClass({
       onMouseUp={this._stopDrag}
       onWheel={this._zoom} >
       
-      <FloatingActionButton className='overview-fit' mini={true} onClick={this._fit} />
-      <img src={description.bg} />
+      <img src={description.bg} onLoad={this.fit}/>
       {
         _config.map(function (obj) {
           return objectList[obj.type]({config: obj.config, id: obj.id, key: obj.type + obj.id});
@@ -96,9 +95,13 @@ var Layer = React.createClass({
     var otscale = this.state.tscale;
     var scale = this.state.scale + 0.1 * s;
     var tscale = Math.exp(scale);
-    if (tscale > this.props.maxZoom || tscale < this.props.minZoom) {
+    if (tscale > this.props.maxZoom) {
       return;
     }
+    if (tscale < this.state.minScale) {
+      return;
+    }
+    
     var dscale = Math.abs(otscale - tscale);
     var rect = e.currentTarget.getBoundingClientRect();
     var w = rect.width / otscale;
@@ -115,14 +118,18 @@ var Layer = React.createClass({
     });
   },
   
-  _fit: function () {
+  fit: function () {
     var node = this.getDOMNode();
     var rect = node.getBoundingClientRect();
-    var scale = Math.min(window.innerWidth / node.clientWidth, window.innerHeight / node.clientHeight);
+    var tscale = Math.min(window.innerWidth / node.clientWidth, window.innerHeight / node.clientHeight);
     this.setState({
-      scale,
+      scale: Math.log(tscale),
+      minScale: tscale,
+      tscale,
       x: 0,
-      y: 0
+      y: 0,
+      dx: 0,
+      dy: 0
     });
   }
 });

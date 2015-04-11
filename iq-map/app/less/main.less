@@ -1,5 +1,6 @@
 @import "../../node_modules/material-ui/src/less/scaffolding.less";
 @import "../../node_modules/material-ui/src/less/components.less";
+//@import url(http://fonts.googleapis.com/css?family=Roboto:500,300,400);
 
 .layer-title {
   position: fixed;
@@ -26,9 +27,19 @@
   top: 50%;
 }
 .overview-fit {
+  background: white;
   position: fixed;
   top: 3%;
   right: 3%;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+}
+.overview-icon {
+  position: absolute;
+  width: 26px;
+  top: 7px;
+  left: 7px;
 }
 .icon-camera {
   background: white;
