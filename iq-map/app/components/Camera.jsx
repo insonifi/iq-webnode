@@ -4,7 +4,7 @@ var cx = require('classnames');
 var {Paper, SvgIcon, IconButton} = require('material-ui');
 var ActionMenu = require('../components/ActionMenu');
 var MapStore = require('../stores/MapStore');
-var CameraAction = require('../actions/CameraActionCreators.js');
+var ObjectAction = require('../actions/ObjectActionCreators.js');
 
 var timeout = 1000;
 
@@ -81,15 +81,15 @@ var Camera = React.createClass({
     return [
       {
         label: 'Arm',
-        handler: function () { CameraAction.send({type: type, id: id, action: 'ARM'}); }
+        handler: function () { ObjectAction.send({type: type, id: id, action: 'ARM'}); }
       },
       {
         label: 'Disarm',
-        handler: function () { CameraAction.send({type: type, id: id, action: 'DISARM'});}
+        handler: function () { ObjectAction.send({type: type, id: id, action: 'DISARM'});}
       },
       {
         label: 'Something',
-        handler: function () { console.log(Date.now()); }
+        handler: function () { ObjectAction.log(Date.now()); }
       }
     ]
   },

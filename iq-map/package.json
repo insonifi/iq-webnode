@@ -28,6 +28,7 @@
     "react": "",
     "react-inlinesvg": "",
     "react-svg": "",
-    "react-tap-event-plugin": ""
+    "react-tap-event-plugin": "",
+    "ws": "^0.7.1"
   }
 }

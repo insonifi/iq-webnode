@@ -1,5 +1,7 @@
 var http = require('http'),
+  dns = require('dns'),
   iq = require('iq-node'),
+  conn = require('./connection.cfg');
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
   wss = new WebSocketServer({port: 8787}),
@@ -7,7 +9,7 @@ var http = require('http'),
   app = express();
 
 app.get('*.js', function (req, res, next) {
-  req.url = req.url + '.gz';
+//  req.url = req.url + '.gz';
   res.set('Content-Encoding', 'gzip');
   next();
 });
@@ -42,7 +44,8 @@ iq.on({}, function (msg) {
   //console.log(msg.type, msg.id, msg.action);
   wss.broadcast(msg);
 });
-iq.connect({ip: '192.168.122.183', iidk: '0', host: 'DUKE-PC'})
-.then(function () {
-}, function (e) { console.log(e); });
-//iq.listen('iidk');
+dns.reverse(conn.ip, function (err, hostnames) {
+  iq.connect({ip: conn.ip, iidk: conn.iidk, host: conn.host || hostnames[0].toUpperCase})
+  .then(function () {}, function (e) { console.log(e); });
+
+});
