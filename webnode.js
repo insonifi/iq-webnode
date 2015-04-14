@@ -1,7 +1,7 @@
 var http = require('http'),
   dns = require('dns'),
   iq = require('iq-node'),
-  conn = require('./connection.cfg');
+  conn = require('./config.json');
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
   wss = new WebSocketServer({port: 8787}),
