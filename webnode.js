@@ -45,6 +45,10 @@ iq.on({}, function (msg) {
   wss.broadcast(msg);
 });
 dns.reverse(conn.ip, function (err, hostnames) {
+  if (!(hostnames || conn.host)) {
+    console.log('Hostname wasn\'t provided and cannot be acquired.');
+    process.exit(1);
+  }
   iq.connect({ip: conn.ip, iidk: conn.iidk, host: conn.host || hostnames[0].toUpperCase})
   .then(function () {}, function (e) { console.log(e); });
 
