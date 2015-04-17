@@ -1,10 +1,12 @@
 var http = require('http'),
+  fs = require('fs'),
+  os = require('os'),
   dns = require('dns'),
   iq = require('iq-node'),
-  conn = require('./config.json');
+  config = JSON.parse(fs.readFileSync('./config.json'));
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
-  wss = new WebSocketServer({port: conn.wsPort || 8787}),
+  wss = new WebSocketServer({port: config.wsPort || 8001}),
   express = require('express'),
   app = express();
 
@@ -20,8 +22,8 @@ app.use(function (req, res, next){
   res.status(404).send('Sorry cant find that!');
 });
 
-app.listen(conn.httpPort || 8000);
-
+app.listen(config.httpPort || 8000);
+console.log('HTTP: %s\nWS: %s', config.httpPort || 8000, config.wsPort || 8001);
 wss.broadcast = function (message) {
   var clients = Object.keys(this.clients),
       i = clients.length;
@@ -44,12 +46,23 @@ iq.on({}, function (msg) {
   //console.log(msg.type, msg.id, msg.action);
   wss.broadcast(msg);
 });
-dns.reverse(conn.ip, function (err, hostnames) {
-  if (!(hostnames || conn.host)) {
-    console.log('Hostname wasn\'t provided and cannot be acquired.');
-    process.exit(1);
-  }
-  iq.connect({ip: conn.ip, iidk: conn.iidk, host: conn.host || hostnames[0].toUpperCase})
-  .then(function () {}, function (e) { console.log(e); });
+if (config.ip === '127.0.0.1') {
+  config.host = os.hostname().toUpperCase();
+  connect(config);
+} else {
+  dns.reverse(config.ip, function (err, hostnames) {
+    if (!(hostnames || config.host)) {
+      console.log('Hostname wasn\'t provided and cannot be acquired.');
+      process.exit(1);
+    }
+    config.host = config.host || hostnames[0].toUpperCase();
+    connect(config);
+  });
+}
 
-});
+function connect(config) {
+  iq.connect(config)
+  .then(function () {}, function (e) {
+    console.log(e);
+  });
+}
