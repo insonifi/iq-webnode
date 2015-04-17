@@ -23,7 +23,7 @@ module.exports = {
 //  devtool: 'source-map',
   plugins: [
         new CompressionPlugin({
-            asset: "{file}.gz",
+            asset: "{file}",
             algorithm: "gzip",
             regExp: /\.js$|\.html$/,
             threshold: 10240,

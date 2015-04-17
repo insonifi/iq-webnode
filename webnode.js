@@ -4,7 +4,7 @@ var http = require('http'),
   conn = require('./config.json');
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
-  wss = new WebSocketServer({port: 8787}),
+  wss = new WebSocketServer({port: conn.wsPort || 8787}),
   express = require('express'),
   app = express();
 
@@ -20,7 +20,7 @@ app.use(function (req, res, next){
   res.status(404).send('Sorry cant find that!');
 });
 
-app.listen(8000);
+app.listen(conn.httpPort || 8000);
 
 wss.broadcast = function (message) {
   var clients = Object.keys(this.clients),
