@@ -6,7 +6,7 @@ var http = require('http'),
   config = JSON.parse(fs.readFileSync('./config.json'));
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
-  wss = new WebSocketServer({port: config.wsPort || 8001}),
+  wss = new WebSocketServer({port: 58888}),
   express = require('express'),
   app = express();
 
@@ -23,7 +23,7 @@ app.use(function (req, res, next){
 });
 
 app.listen(config.httpPort || 8000);
-console.log('HTTP: %s\nWS: %s', config.httpPort || 8000, config.wsPort || 8001);
+console.log('HTTP: %s\nWS: %s', config.httpPort || 8000, 58888);
 wss.broadcast = function (message) {
   var clients = Object.keys(this.clients),
       i = clients.length;

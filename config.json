@@ -1,5 +1,6 @@
 {
   "ip": "192.168.122.183",
   "iidk": 0,
-  "host": "DUKE-PC"
+  "host": "DUKE-PC",
+  "httpPort": 8888
 }
