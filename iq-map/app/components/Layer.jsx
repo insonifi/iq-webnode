@@ -75,6 +75,11 @@ var Layer = React.createClass({
   },
   
   _Drag: function (e) {
+    //stop drag if mouse button was released
+    if (e.which === 0) {
+      this._stopDrag(e);
+      return false;
+    }
     var width = window.innerWidth;
     var height = window.innerHeight;
     var rect = this.getDOMNode().getBoundingClientRect();
@@ -82,8 +87,13 @@ var Layer = React.createClass({
     var s = this.state.scale;
     var dx = e.clientX - this.state.ox;
     var dy = e.clientY - this.state.oy;
-    
-    
+    var deltaX = this.state.x - dx;
+    var deltaY = this.state.y - dy;
+    // Check bounds
+    dx = Math.max(-this.state.dx + window.innerWidth - rect.width, dx);
+    dy = Math.max(-this.state.dy + window.innerHeight - rect.height, dy);
+    dx = Math.min(-this.state.dx, dx);
+    dy = Math.min(-this.state.dy, dy);
     this.setState({
       x: dx,
       y: dy,
@@ -106,8 +116,8 @@ var Layer = React.createClass({
     var rect = e.currentTarget.getBoundingClientRect();
     var w = rect.width / otscale;
     var h = rect.height / otscale;
-    var rx = (e.clientX - rect.left) / otscale;
-    var ry = (e.clientY - rect.top) / otscale;
+    var rx = Math.max((e.clientX - rect.left) / otscale, 0);
+    var ry = Math.max((e.clientY - rect.top) / otscale, 0);
     var dx = (dscale * w) * s * ((0.5 - rx)/w);
     var dy = (dscale * h) * s * ((0.5 - ry)/h);
     this.setState({
