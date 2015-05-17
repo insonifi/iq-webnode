@@ -82,7 +82,7 @@ var Layer = React.createClass({
     }
     var width = window.innerWidth;
     var height = window.innerHeight;
-    var rect = this.getDOMNode().getBoundingClientRect();
+    var rect = React.findDOMNode(this).getBoundingClientRect();
     
     var s = this.state.scale;
     var dx = e.clientX - this.state.ox;
@@ -118,13 +118,41 @@ var Layer = React.createClass({
     var h = rect.height / otscale;
     var rx = Math.max((e.clientX - rect.left) / otscale, 0);
     var ry = Math.max((e.clientY - rect.top) / otscale, 0);
-    var dx = (dscale * w) * s * ((0.5 - rx)/w);
-    var dy = (dscale * h) * s * ((0.5 - ry)/h);
+    var dx = (dscale * w) * s * ((0.5 - rx)/w) + this.state.dx;
+    var dy = (dscale * h) * s * ((0.5 - ry)/h) + this.state.dy;
+    
+    var x = this.state.x;
+    var y = this.state.y;
+    var offsetX = x + dx;
+    var offsetY = y + dy;
+    
+    var corr_x = 0;
+    var corr_y = 0;
+    
+    var leftBound = offsetX;
+    var topBound = offsetY;
+    var rightBound = offsetX + w*tscale - window.innerWidth;
+    var bottomBound = offsetY + h*tscale - window.innerHeight;
+    
+    if (rightBound < 0) {
+      corr_x = rightBound;
+    }
+    if (bottomBound < 0) {
+      corr_y = bottomBound;
+    }
+    if (leftBound > 0) {
+      corr_x = leftBound;
+    }
+    if (topBound > 0) {
+      corr_y = topBound;
+    }
     this.setState({
       scale,
       tscale,
-      dx: this.state.dx + dx,
-      dy: this.state.dy + dy,
+      dx,
+      dy,
+      x: x - corr_x,
+      y: y - corr_y,
     });
   },
   
@@ -140,7 +168,7 @@ var Layer = React.createClass({
       y: 0,
       dx: 0,
       dy: 0
-    });
+    }); 
   }
 });
 
