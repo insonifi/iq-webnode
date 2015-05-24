@@ -7,23 +7,23 @@ var _ = require('lodash');
 var ActionMenu = React.createClass({
   getInitialState: function () {
     return {
-      isVisible: false
+      isVisible: false,
+      delta: 0
     }
   },
   displayName: 'ActionMenu',
-  componentDidMount: function () {
-  },
   render: function () {
     var _actions = _(this.props.actions);
     var i = this.props.actions.length;
-    var radius = (i*25);
+    var radius = (20 + Math.log(i) * 60);
+    var delta = this.state.delta;
     var angularInterval = 2*Math.PI/i;
     var isVisible = this.state.isVisible;
     var containerStyle = {
-      position: 'absolute',
-      display: isVisible ? 'inline-block' : 'none',
-      left:  0,
-      top: 0,
+      position: 'relative',
+      left: '50%',
+      top: '-50%',
+      display: isVisible ? 'block' : 'none'
     };
     var children = isVisible ? _actions.map(function (action) {
       var itemStyle = {
@@ -31,6 +31,7 @@ var ActionMenu = React.createClass({
         left:  Math.sin(angularInterval * (i - 1)) * radius,
         top: Math.cos(angularInterval * (i - 1)) * radius,
         transform: 'translate(-50%, -50%)',
+        zIndex: 2,
       };
       i -= 1;
 
@@ -40,10 +41,10 @@ var ActionMenu = React.createClass({
         </div>
       )
     }).value() : null;
-    
     return (
-      <div style={containerStyle} onClick={this.close}>
-          {children}
+      <div className='' style={containerStyle}
+          onClick={this.close}>
+        {children}
       </div>
     )
   },

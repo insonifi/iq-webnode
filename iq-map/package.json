@@ -21,7 +21,10 @@
   "dependencies": {
     "classnames": "",
     "d3": "",
+    "file-loader": "^0.8.1",
     "flux": "",
+    "image-webpack-loader": "^1.4.0",
+    "imagemin": "^3.2.0",
     "lodash": "",
     "material-ui": "",
     "raw-loader": "^0.5.1",
