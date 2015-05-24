@@ -1,7 +1,7 @@
 'use strict'
 var React = require('react');
 var cx = require('classnames');
-var {Paper, SvgIcon, IconButton} = require('material-ui');
+var {Paper, IconButton} = require('material-ui');
 var ActionMenu = require('../components/ActionMenu');
 var MapStore = require('../stores/MapStore');
 var ObjectAction = require('../actions/ObjectActionCreators.js');
@@ -25,7 +25,7 @@ var Camera = React.createClass({
     var config = this.props.config;
     var x = config.x;
     var y = config.y;
-    var name = config.name;
+    var name = this.props.name;
     var state = this.state;
     var style = {
       position: 'absolute',
@@ -33,48 +33,18 @@ var Camera = React.createClass({
       left: x,
       transform: 'translate(-50%, -50%)',
     };
-    var svgStyle = {
-        opacity:1,
-        fill:'none',
-        fillOpacity:1,
-        stroke: state.Armed ? '#ED7E12' : '#839EA0' ,
-        strokeWidth:2,
-        strokeLinecap:'round',
-        strokeLinejoin:'bevel',
-        strokeMiterlimit:4,
-        strokeDasharray:'none',
-        strokeDashoffset:0,
-        strokeOpacity:1
-      };
-    var classes = cx({
-        'icon-camera': true,
+    var classes = cx('camera', {
         alarm: state.Alarmed,
       });
     var actions = this.actions('CAM', config.id);
-    return  <div style={style}>
-      <Paper circle={true} className={classes}
-              onClick={this.toggleMenu}>
-        <IconButton tooltip={name}>
-          <SvgIcon>
-            <rect
-               ry='3'
-               y='4'
-               x='1'
-               height='16'
-               width='16'
-               style={svgStyle} />
-            <rect
-               ry='0.15'
-               y='7'
-               x='19'
-               height='10'
-               width='4'
-               style={svgStyle} />
-          </SvgIcon>
-        </IconButton>
-      </Paper>
+    return  <Paper style={style} circle={true} className='icon'>
+      <IconButton
+          className={classes}
+          tooltip={name}
+          onClick={this.toggleMenu}>
+      </IconButton>
       <ActionMenu ref='actionMenu' x={x} y={y} actions={actions} />
-    </div>
+    </Paper>
   },
   
   actions: function (type, id) {
@@ -86,6 +56,10 @@ var Camera = React.createClass({
       {
         label: 'Disarm',
         handler: function () { ObjectAction.send({type: type, id: id, action: 'DISARM'});}
+      },
+      {
+        label: 'Something',
+        handler: function () { ObjectAction.log(Date.now()); }
       },
       {
         label: 'Something',
