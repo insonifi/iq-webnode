@@ -105,10 +105,7 @@ var Layer = React.createClass({
     var otscale = this.state.tscale;
     var scale = this.state.scale + 0.1 * s;
     var tscale = Math.exp(scale);
-    if (tscale > this.props.maxZoom) {
-      return;
-    }
-    if (tscale < this.state.minScale) {
+    if (tscale > this.props.maxZoom || tscale < this.state.minScale) {
       return;
     }
     
@@ -133,18 +130,13 @@ var Layer = React.createClass({
     var topBound = offsetY;
     var rightBound = offsetX + w*tscale - window.innerWidth;
     var bottomBound = offsetY + h*tscale - window.innerHeight;
-    
-    if (rightBound < 0) {
-      corr_x = rightBound;
-    }
-    if (bottomBound < 0) {
-      corr_y = bottomBound;
-    }
-    if (leftBound > 0) {
-      corr_x = leftBound;
-    }
-    if (topBound > 0) {
-      corr_y = topBound;
+    if (s < 0) {
+      if (leftBound > 0 || rightBound < 0) {
+        corr_x = Math.max(leftBound, rightBound);
+      }
+      if (topBound > 0 || bottomBound < 0) {
+        corr_y = Math.max(topBound, bottomBound);
+      }
     }
     this.setState({
       scale,

@@ -24,7 +24,7 @@ module.exports = {
     modulesDirectories: ['node_modules'],
     extensions: ['', '.js', '.jsx']
   },
-//  devtool: 'source-map',
+  devtool: 'source-map',
   plugins: [
         new CompressionPlugin({
             asset: "{file}",
