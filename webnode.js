@@ -3,7 +3,7 @@ var http = require('http'),
   os = require('os'),
   dns = require('dns'),
   iq = require('iq-node'),
-  config = JSON.parse(fs.readFileSync('./config.json'));
+  config = JSON.parse(fs.readFileSync(__dirname + '/config.json'));
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
   wss = new WebSocketServer({port: 58888}),
@@ -16,7 +16,7 @@ app.get('*.js', function (req, res, next) {
   next();
 });
   
-app.use(express.static('iq-map'));
+app.use(express.static(__dirname + '/iq-map'));
 
 app.use(function (req, res, next){
   res.status(404).send('Sorry cant find that!');
