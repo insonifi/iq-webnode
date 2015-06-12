@@ -7,7 +7,7 @@ module.exports = {
     loaders: [
       { test: /\.css$/, loader: 'style!css' },
       { test: /\.less$/, loader: 'style!css!less' },
-      { test: /\.jsx$/, loader: 'jsx?harmony' },
+      { test: /\.jsx?$/, loader: 'jsx?harmony' },
       { test: /\.(jpe?g|png|gif|svg)$/, loaders: [
             'file?hash=sha512&digest=hex&name=[hash].[ext]',
             'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
