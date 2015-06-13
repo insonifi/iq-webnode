@@ -1,6 +1,6 @@
 'use strict'
 var React = require('react'); 
-var ISVG = require('react-inlinesvg');
+//var ISVG = require('react-inlinesvg');
 var d3 = require('d3');
 var {Paper, RaisedButton}= require('material-ui');
 var _ = require('lodash');
@@ -25,6 +25,7 @@ var SVGLayerSelector = React.createClass({
   componentDidMount: function () { 
     MapStore.addChangeListener(this._onChange);
     MapStore.addStateUpdateListener(this._onState);
+    
   },
   componentWillUnmount: function () {
     MapStore.removeChangeListener(this._onChange);
@@ -37,10 +38,15 @@ var SVGLayerSelector = React.createClass({
     var style = {
       transform: this.state.closed ? 'translate(100%,-50%)' : 'translate(0,-50%)'
     };
+    var getSVG = (function () {
+      return {
+        __html: this.state.svg
+      }
+    }).bind(this);
     return <div className='overview' style={style}>
-      <RaisedButton zDepth={3} className='overview-title' label='Overview' onClick={this.toggle}/>
+      <RaisedButton className='overview-title' label='Overview' onClick={this.toggle}/>
       <Paper zDepth={3}> 
-        <ISVG src={this.props.src} onLoad={this._init} style='padding: 30px' />
+        <span dangerouslySetInnerHTML={getSVG()} style={{padding: 30}} />
       </Paper>
     </div>
   },
@@ -94,7 +100,17 @@ var SVGLayerSelector = React.createClass({
         'stroke-opacity': 0
       })
   },
+  _load: function () {
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener('load', (function () {
+      this.setState({
+        svg: xhr.responseText
+      })
+      this._init();
+    }).bind());
+    xhr.open(this.props.src, true);
     
+  },
   _onClick: function (key) {
     MapActions.select(key);
   },
