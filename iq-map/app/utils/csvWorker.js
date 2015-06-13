@@ -27,10 +27,8 @@ onmessage = function (e) {
       id: id,
       type: type,
       name: name,
-      config: {
-        x: x,
-        y: x,
-      }
+      x,
+      y,
     });
   }
   postMessage(config);
