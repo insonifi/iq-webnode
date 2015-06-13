@@ -22,9 +22,9 @@ var Camera = React.createClass({
     MapStore.removeStateUpdateListener(this._onUpdate);
   },
   render: function () {
-    var config = this.props.config;
-    var x = config.x;
-    var y = config.y;
+    var x = this.props.x;
+    var y = this.props.y;
+    var id = this.props.id;
     var name = this.props.name;
     var state = this.state;
     var style = {
@@ -32,11 +32,13 @@ var Camera = React.createClass({
       top: y,
       left: x,
       transform: 'translate(-50%, -50%)',
+      transition: 'none',
+      '-webkit-transition': 'none',
     };
     var classes = cx('camera', {
         alarm: state.Alarmed,
       });
-    var actions = this.actions('CAM', config.id);
+    var actions = this.actions('CAM', id);
     return  <Paper style={style} circle={true} className='icon'>
       <IconButton
           className={classes}
