@@ -5,8 +5,9 @@ var objectList = {
   CAM: React.createFactory(require('../components/Camera')),
   Image: React.createFactory(require('../components/Image'))
 }
-var tsf_template = _.template('translate(${x}px, ${y}px) scale(${scale})');
-//var tsf_template = _.template('scale(${scale})');
+//var tsf_template = _.template('translate(${x}px, ${y}px) scale(${scale})');
+var tsf_template = _.template('translate(-50%, -50%) scale(${scale})');
+var bg_template = _.template('url(${bg}) white');
 var Layer = React.createClass({
   getInitialState: function () {
     return {
@@ -17,49 +18,92 @@ var Layer = React.createClass({
       y: 0,
       dx: 0,
       dy: 0,
+      cx: 0,
+      cy: 0,
       scale: 0,
-      minScale: 0,
+      minZoom: 0,
       tscale: 1
     }
   },
   displayName: 'Layer',
   componentDidMount: function () {
+    this._getSize();
+  },
+  componentWillReceiveProps: function () {
+    this._getSize();
   },
   render: function () {
-    var description  = this.props.desc || {bg: "", config: []};
-    var _config = _(description.config);
+    var desc  = this.props.desc || {bg: "", config: []};
+    var _config = _(desc.config);
+    var x = this.state.x;
+    var y = this.state.y;
+    var dx = this.state.dx;
+    var dy = this.state.dy;
+    var cx = this.state.cx;
+    var cy = this.state.cy;
+    var w = this.state.w;
+    var h = this.state.h;
+    var tscale = this.state.tscale;
     var style = {
       position: 'absolute',
-      transformOrigin: '0 0',
-      transform: tsf_template({
-        x: this.state.x  + this.state.dx,
-        y: this.state.y + this.state.dy,
-        scale: this.state.tscale
-      }),
-      background: 'aliceblue'
+//      transformOrigin: '0 0',
+//      transform: tsf_template({
+//        x: this.state.x  + this.state.dx,
+//        y: this.state.y + this.state.dy,
+//        scale: this.state.tscale
+//      }),
+      left: x + dx + cx,
+      top: y + dy + cy,
+      width: w * tscale,
+      height: h * tscale,
+      borderColor: 'lightskyblue',
+      borderStyle: 'solid',
+      borderWidth: 1,
+//      background: bg_template(desc),
+//      backgroundSize: 'cover',
+//      backgroundRepeat: 'no-repeat',
+    };
+    var d = {
+      position: 'fixed',
+      left: this.state.ddl,
+      right: this.state.ddr,
+      top: this.state.ddt,
+      bottom: this.state.ddb,
+      border: 'solid 1px crimson',
+      zIndex: 100,
     };
     var bg = {
-      width: '100%',
-      height: '100%'
+      left: '50%',
+      top: '50%',
+      position: 'absolute',
+//      width: '100%',
+//      height: '100%',
+      transform: tsf_template({
+//        x: this.state.x  + this.state.dx,
+//        y: this.state.y + this.state.dy,
+        scale: this.state.tscale
+      }),
     };
-    
+//      <img ref='Image' style={bg} src={desc.bg} onLoad={this.fit}/>
     return <div style={style}
+      ref='Layer'
       onMouseDown={this._startDrag}
-      onMouseUp={this._stopDrag}
+      onMouseUp={this._stopDrag} 
       onWheel={this._zoom} >
-      
-      <img src={description.bg} onLoad={this.fit}/>
       {
         _config.map(function (obj) {
-          return objectList[obj.type]({config: obj.config, id: obj.id, key: obj.type + obj.id});
+        // TODO: if coordinates beyond screen then don't add
+          var x = obj.x * tscale;
+          var y = obj.y * tscale;
+          return objectList[obj.type]({id: obj.id, key: obj.type + obj.id, x, y});
         }).value()
-
       }
+      <img src={desc.bg} style={bg} />
     </div>
   },                    
   _startDrag: function(e) {
     e.preventDefault();
-    window.addEventListener('mousemove', this._Drag, true);
+    window.addEventListener('mousemove', this._drag, true);
     
     var x = e.clientX - this.state.x;
     var y = e.clientY - this.state.y;
@@ -71,10 +115,10 @@ var Layer = React.createClass({
   },
   
   _stopDrag: function(e) {
-    window.removeEventListener('mousemove', this._Drag, true);
+    window.removeEventListener('mousemove', this._drag, true);
   },
   
-  _Drag: function (e) {
+  _drag: function (e) {
     //stop drag if mouse button was released
     if (e.which === 0) {
       this._stopDrag(e);
@@ -105,7 +149,7 @@ var Layer = React.createClass({
     var otscale = this.state.tscale;
     var scale = this.state.scale + 0.1 * s;
     var tscale = Math.exp(scale);
-    if (tscale > this.props.maxZoom || tscale < this.state.minScale) {
+    if (tscale > this.props.maxZoom || tscale < this.state.minZoom) {
       return;
     }
     
@@ -113,53 +157,77 @@ var Layer = React.createClass({
     var rect = e.currentTarget.getBoundingClientRect();
     var w = rect.width / otscale;
     var h = rect.height / otscale;
-    var rx = Math.max((e.clientX - rect.left) / otscale, 0);
-    var ry = Math.max((e.clientY - rect.top) / otscale, 0);
-    var dx = (dscale * w) * s * ((0.5 - rx)/w) + this.state.dx;
-    var dy = (dscale * h) * s * ((0.5 - ry)/h) + this.state.dy;
-    
+    var ox = (e.clientX - rect.left) / otscale;
+    var oy = (e.clientY - rect.top) / otscale;
+    var rx = (ox / w);
+    var ry = (oy / h);
+    var dx = (s * dscale * w) * -rx + this.state.dx;
+    var dy = (s * dscale * h) * -ry + this.state.dy;
     var x = this.state.x;
     var y = this.state.y;
-    var offsetX = x + dx;
-    var offsetY = y + dy;
+    var cx = this.state.cx;
+    var cy = this.state.cy;
+    var offsetX = x + dx + cx;
+    var offsetY = y + dy + cy;
     
-    var corr_x = 0;
-    var corr_y = 0;
-    
-    var leftBound = offsetX;
-    var topBound = offsetY;
-    var rightBound = offsetX + w*tscale - window.innerWidth;
-    var bottomBound = offsetY + h*tscale - window.innerHeight;
+    var leftEdge = offsetX;
+    var rightEdge = -(offsetX + (w * tscale) - window.innerWidth);
+    var topEdge = offsetY;
+    var bottomEdge = -(offsetY + (h * tscale) - window.innerHeight);
     if (s < 0) {
-      if (leftBound > 0 || rightBound < 0) {
-        corr_x = Math.max(leftBound, rightBound);
+      if (leftEdge > 0) {
+        cx -= leftEdge;
+      } else {
+        if (rightEdge > 0) {
+          cx += rightEdge;
+        }
       }
-      if (topBound > 0 || bottomBound < 0) {
-        corr_y = Math.max(topBound, bottomBound);
+      if (topEdge > 0) {
+        cy -= topEdge;
+      } else {
+        if (bottomEdge > 0) {
+          cy += bottomEdge;
+        }
       }
     }
+//    if (leftEdge > 0 || rightEdge > 0) {
+//      cx = -[leftEdge, rightEdge][Math.round(rx)];
+//    }
+    
     this.setState({
       scale,
       tscale,
       dx,
       dy,
-      x: x - corr_x,
-      y: y - corr_y,
+      cx,
+      cy,
+      ddl: leftEdge,
+      ddr: rightEdge,
+      ddt: topEdge,
+      ddb: bottomEdge,
     });
   },
-  
+  _getSize: function () {
+    var image = document.createElement('img');
+    image.addEventListener('load', (function () {
+      this.setState({
+        w: image.width,
+        h: image.height
+      });
+      this.fit();
+    }).bind(this));
+    image.src = this.props.desc.bg;
+  },
   fit: function () {
-    var node = this.getDOMNode();
-    var rect = node.getBoundingClientRect();
-    var tscale = Math.min(window.innerWidth / node.clientWidth, window.innerHeight / node.clientHeight);
+    var tscale = Math.min(window.innerWidth / this.state.w, window.innerHeight / this.state.h);
     this.setState({
       scale: Math.log(tscale),
-      minScale: tscale,
+      minZoom: tscale,
       tscale,
       x: 0,
       y: 0,
       dx: 0,
-      dy: 0
+      dy: 0,
     }); 
   }
 });
