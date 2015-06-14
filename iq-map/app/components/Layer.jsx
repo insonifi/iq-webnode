@@ -43,6 +43,8 @@ var Layer = React.createClass({
     var cy = this.state.cy;
     var w = this.state.w;
     var h = this.state.h;
+    var pos_x = x + dx + cx;
+    var pos_y = y + dy + cy;
     var tscale = this.state.tscale;
     var style = {
       position: 'absolute',
@@ -52,8 +54,8 @@ var Layer = React.createClass({
 //        y: this.state.y + this.state.dy,
 //        scale: this.state.tscale
 //      }),
-      left: x + dx + cx,
-      top: y + dy + cy,
+      left: pos_x,
+      top: pos_y,
       width: w * tscale,
       height: h * tscale,
       borderColor: 'lightskyblue',
@@ -62,15 +64,6 @@ var Layer = React.createClass({
 //      background: bg_template(desc),
 //      backgroundSize: 'cover',
 //      backgroundRepeat: 'no-repeat',
-    };
-    var d = {
-      position: 'fixed',
-      left: this.state.ddl,
-      right: this.state.ddr,
-      top: this.state.ddt,
-      bottom: this.state.ddb,
-      border: 'solid 1px crimson',
-      zIndex: 100,
     };
     var bg = {
       left: '50%',
@@ -92,10 +85,16 @@ var Layer = React.createClass({
       onWheel={this._zoom} >
       {
         _config.map(function (obj) {
-        // TODO: if coordinates beyond screen then don't add
           var x = obj.x * tscale;
           var y = obj.y * tscale;
-          return objectList[obj.type]({id: obj.id, key: obj.type + obj.id, x, y});
+          var pos__x = pos_x + x;
+          var pos__y = pos_y + y;
+          if ((0 < pos__x && pos__x < window.innerWidth) &&
+              (0 < pos__y && pos__y < window.innerHeight)) {
+            return objectList[obj.type]({id: obj.id, key: obj.type + obj.id, x, y});
+          } else {
+            return null;
+          }
         }).value()
       }
       <img src={desc.bg} style={bg} />
@@ -201,10 +200,6 @@ var Layer = React.createClass({
       dy,
       cx,
       cy,
-      ddl: leftEdge,
-      ddr: rightEdge,
-      ddt: topEdge,
-      ddb: bottomEdge,
     });
   },
   _getSize: function () {
