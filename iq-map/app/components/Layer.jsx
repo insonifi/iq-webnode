@@ -214,7 +214,8 @@ var Layer = React.createClass({
     image.src = this.props.desc.bg;
   },
   fit: function () {
-    var tscale = Math.min(window.innerWidth / this.state.w, window.innerHeight / this.state.h);
+    var tscale = Math.max(window.innerWidth / this.state.w, window.innerHeight / this.state.h);
+    console.log('Initial fit');
     this.setState({
       scale: Math.log(tscale),
       minZoom: tscale,
@@ -223,6 +224,8 @@ var Layer = React.createClass({
       y: 0,
       dx: 0,
       dy: 0,
+      cx: 0,
+      cy: 0,
     }); 
   }
 });
