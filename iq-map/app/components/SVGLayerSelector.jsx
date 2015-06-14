@@ -31,7 +31,8 @@ var SVGLayerSelector = React.createClass({
     MapStore.removeChangeListener(this._onChange);
     MapStore.removeStateUpdateListener(this._onState);
   },
-  componentWillReceiveProps: function (props) {
+  componentWillMount: function () {
+    this._load();
   },
   render: function () {
     var layerNames = this.props.layerNames;
@@ -102,14 +103,17 @@ var SVGLayerSelector = React.createClass({
   },
   _load: function () {
     var xhr = new XMLHttpRequest();
-    xhr.addEventListener('load', (function () {
-      this.setState({
-        svg: xhr.responseText
-      })
-      this._init();
-    }).bind());
-    xhr.open(this.props.src, true);
-    
+    var _this = this;
+    xhr.addEventListener('readystatechange', function () {
+      if (this.readyState === 4) {
+        _this.setState({
+          svg: xhr.responseText
+        })
+        _this._init();
+      }
+    });
+    xhr.open('GET', this.props.src);
+    xhr.send();
   },
   _onClick: function (key) {
     MapActions.select(key);
