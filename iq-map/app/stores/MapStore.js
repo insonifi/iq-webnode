@@ -1,4 +1,5 @@
 'use strict'
+var React = require('react');
 var MapDispatcher = require('../dispatcher/MapDispatcher');
 var MapConstants = require('../constants/MapConstants');
 var IqNode = require('../utils/IqNode');
@@ -15,6 +16,9 @@ var _states = {};
 var _mapConfig = {};
 var _layerSelected = 0;
 var _layerAlarmed= {};
+var behaviours = {};
+var factories = {};
+
 
 var MapStore = _.assign({}, EventEmitter.prototype, {
 
@@ -58,17 +62,29 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
     MapConfig.requestMapConfig('map.csv');
   },
   
+  registerFactory: function (component) {
+    factories[component.displayName] = React.createFactory(component);
+  },
+  
+  registerBehaviour: function (fsm) {
+    behaviours[fsm.namespace] = fsm;
+  },
+  
+  getFactory: function (type) {
+    return factories[type];
+  },
+  
   getMapConfig: function () {
     return _mapConfig;
   },
   
   getState: function (type, id) {
-    var state = _.chain(_states).result(type).result(id).value();
-    if (state) {
-      return state;
+    var fsmClient = _.get(_states, [type, id].join('.'));
+    if (fsmClient) {
+      return behaviours.compositeState(fsmClient);
     } else {
-//      IqNode.requestState(type, id);
-      return {};
+      IqNode.requestState(type, id);
+      return '';
     }
   },
   
@@ -97,10 +113,6 @@ MapStore.dispatchToken = MapDispatcher.register(function(payload) {
       _mapConfig = action.config;
       MapStore.emitConfig();
       break;
-
-    case ActionTypes.EVENT:
-      IqNode.event(action.body);
-      break;
       
     case ActionTypes.LAYER_SELECT:
       _layerSelected = action.index;
@@ -114,19 +126,25 @@ MapStore.dispatchToken = MapDispatcher.register(function(payload) {
 });
 
 function processMessage (message) {
-  var objectState = {};
-  if (message.type === 'MAPGIS' && message.action === 'OBJECT_STATE') {
-    var type = message.params.obj_type,
-        id = message.params.obj_id,
-        state = _(message.params.state.split(','))
-          .reduce(function (result, item, key) {
-            result[item] = true;
-            return result;
-          }, {});
-    if (!_states[type]) { _states[type] = {}; }
-    _states[type][id] = state;
+  var type, id;
+  var behaviour = behaviours[message.params.objtype];
+  var fsm;
+  if (message.type === 'ACTIVEX' && message.action === 'OBJECT_STATE') {
+    type = message.params.objtype;
+    id = message.params.objid;
+    var state = message.params.state.toLowerCase();    
+    fsm = {type: type, id: id};
+    behaviour.init(fsm, state);
+    _.set(_states, [type, id].join('.'), fsm);
+  } else {
+    type = message.type;
+    id = message.id;
+    fsm = _.get(_states, [type, id].join('.'));
+    if (fsm) {
+      behaviour.handle(fsm, message.action);
+    }
   }
-};
+}
 
 function updateAlarmedLayers () {
   _layerAlarmed = _(_mapConfig).reduce(function (result, n, key) {
@@ -144,7 +162,25 @@ function updateAlarmedLayers () {
     }
     return result;
   }, {});
-};
+}
+
+function forceFsmState (stateStr) {
+    var stateList = stateStr.split('|');
+    var len = stateList.length;
+    var i;
+    var instance = this;
+    var child = null;
+    var state;
+    for (i = 0; i < len; i += 1) {
+        state = stateList[i];
+        instance.state = state;
+        child = instance.states[state]._child;
+        if (child) {
+            child.instance.initClient();
+            instance = child.instance;
+        }
+    }
+}
 
 MapStore.requestMapConfig();
 

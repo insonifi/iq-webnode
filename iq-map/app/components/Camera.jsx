@@ -5,17 +5,39 @@ var {Paper, IconButton} = require('material-ui');
 var ActionMenu = require('../components/ActionMenu');
 var MapStore = require('../stores/MapStore');
 var ObjectAction = require('../actions/ObjectActionCreators.js');
+var machina = require('machina');
 
 var timeout = 1000;
+var TYPE = 'CAM';
 
+var CameraFsm = new machina.BehavioralFsm({
+  namespace: TYPE,
+  initialState: 'disarmed',
+  states: {
+    'disarmed': {
+      'md_start': 'armed|alarmed',
+      'md_stop': 'armed',
+      'arm': 'armed',
+    },
+    'armed': {
+      'md_start': 'armed|alarmed',
+      'disarm': 'disarmed',
+    },
+    'armed|alarmed': {
+      'md_stop': 'armed',
+      'disarm': 'disarmed',
+    },
+  }
+});
 
 var Camera = React.createClass({
   getInitialState: function () {
     return {}
   },
-  displayName: 'Camera',
+  displayName: TYPE,
   componentDidMount: function () {
     MapStore.addStateUpdateListener(this._onUpdate);
+    MapStore.getState(TYPE, this.props.id);
     this._onUpdate();
   },
   componentWillUnmount: function () {
@@ -38,7 +60,7 @@ var Camera = React.createClass({
     var classes = cx('camera', {
         alarm: state.Alarmed,
       });
-    var actions = this.actions('CAM', id);
+    var actions = this.actions(TYPE, id);
     return  <Paper style={style} circle={true} className='icon'>
       <IconButton
           className={classes}
@@ -60,8 +82,8 @@ var Camera = React.createClass({
         handler: function () { ObjectAction.send({type: type, id: id, action: 'DISARM'});}
       },
       {
-        label: 'Something',
-        handler: function () { ObjectAction.log(Date.now()); }
+        label: 'Get state',
+        handler: function () { ObjectAction.requestState(type, id); }
       },
       {
         label: 'Something',
@@ -71,7 +93,7 @@ var Camera = React.createClass({
   },
   
   _onUpdate: function () {
-    this.replaceState(MapStore.getState('CAM', this.props.id));
+    this.replaceState(MapStore.getState(TYPE, this.props.id));
   },
   
   toggleMenu: function () {
@@ -88,5 +110,6 @@ var Camera = React.createClass({
 //    clearTimeout(this.state.timer);
 //  }
 });
-
+MapStore.registerFactory(Camera);
+MapStore.registerBehaviour(TYPE, CameraFsm);
 module.exports = Camera;

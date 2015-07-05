@@ -39,13 +39,18 @@ var SVGLayerSelector = React.createClass({
     var style = {
       transform: this.state.closed ? 'translate(100%,-50%)' : 'translate(0,-50%)'
     };
+    var titleStyle = {
+      transform: 'translate(-67%,-50%) rotateZ(-90deg)',
+      position: 'absolute',
+      top: '50%',
+    };
     var getSVG = (function () {
       return {
         __html: this.state.svg
       }
     }).bind(this);
     return <div className='overview' style={style}>
-      <RaisedButton className='overview-title' label='Overview' onClick={this.toggle}/>
+      <RaisedButton style={titleStyle} label='Overview' onClick={this.toggle}/>
       <Paper zDepth={3}> 
         <span dangerouslySetInnerHTML={getSVG()} style={{padding: 30}} />
       </Paper>

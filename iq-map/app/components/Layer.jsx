@@ -1,10 +1,12 @@
 'use strict'
 var React = require('react');
 var _ = require('lodash');
-var objectList = {
-  CAM: React.createFactory(require('../components/Camera')),
-  Image: React.createFactory(require('../components/Image'))
-}
+var MapStore = require('../stores/MapStore');
+/**
+ * Load object components
+ * */
+require('../components/Camera');
+
 //var tsf_template = _.template('translate(${x}px, ${y}px) scale(${scale})');
 var tsf_template = _.template('translate(-50%, -50%) scale(${scale})');
 var bg_template = _.template('url(${bg}) white');
@@ -91,7 +93,7 @@ var Layer = React.createClass({
           var pos__y = pos_y + y;
           if ((0 < pos__x && pos__x < window.innerWidth) &&
               (0 < pos__y && pos__y < window.innerHeight)) {
-            return objectList[obj.type]({id: obj.id, key: obj.type + obj.id, x, y});
+            return MapStore.getFactory(obj.type)({id: obj.id, key: obj.type + obj.id, x, y});
           } else {
             return null;
           }
@@ -189,9 +191,6 @@ var Layer = React.createClass({
         }
       }
     }
-//    if (leftEdge > 0 || rightEdge > 0) {
-//      cx = -[leftEdge, rightEdge][Math.round(rx)];
-//    }
     
     this.setState({
       scale,
@@ -215,7 +214,6 @@ var Layer = React.createClass({
   },
   fit: function () {
     var tscale = Math.max(window.innerWidth / this.state.w, window.innerHeight / this.state.h);
-    console.log('Initial fit');
     this.setState({
       scale: Math.log(tscale),
       minZoom: tscale,

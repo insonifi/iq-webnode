@@ -9,7 +9,7 @@ onmessage = function (e) {
     if (csv[idx].length === 0) continue;
     var params = csv[idx].split(',');
     var id = params[0];
-    var type = params[1];
+    var type = params[1].toUpperCase();
     var name = params[2];
     var x = params[3];
     var bg = params[3];

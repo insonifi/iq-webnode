@@ -29,6 +29,7 @@ module.exports = {
   },
   
   requestState: function (type, id) {
+    console.log('requested', type, id);
     this.event({
       type: 'CORE',
       action: 'GET_STATE',
