@@ -18,6 +18,7 @@ var _layerSelected = 0;
 var _layerAlarmed= {};
 var behaviours = {};
 var factories = {};
+var requestTracker = {};
 
 
 var MapStore = _.assign({}, EventEmitter.prototype, {
@@ -79,12 +80,19 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
   },
   
   getState: function (type, id) {
-    var fsmClient = _.get(_states, [type, id].join('.'));
+    var path = [type, id].join('.');
+    var fsmClient = _.get(_states, path);
     if (fsmClient) {
-      return behaviours.compositeState(fsmClient);
+      if (!_.get(requestTracker, path)) {
+        _.set(requestTracker, path, undefined);
+      }
+      return stringToMap(behaviours[type].compositeState(fsmClient));
     } else {
-      IqNode.requestState(type, id);
-      return '';
+      if (!_.get(requestTracker, path)) {
+        _.set(requestTracker, path, true);
+        IqNode.requestState(type, id);
+      }
+      return {};
     }
   },
   
@@ -126,24 +134,27 @@ MapStore.dispatchToken = MapDispatcher.register(function(payload) {
 });
 
 function processMessage (message) {
-  var type, id;
-  var behaviour = behaviours[message.params.objtype];
-  var fsm;
+  var type, id, behaviour, fsm, path;
   if (message.type === 'ACTIVEX' && message.action === 'OBJECT_STATE') {
     type = message.params.objtype;
     id = message.params.objid;
+    path = [type, id].join('.');
+    behaviour = behaviours[message.params.objtype];
     var state = message.params.state.toLowerCase();    
     fsm = {type: type, id: id};
     behaviour.init(fsm, state);
-    _.set(_states, [type, id].join('.'), fsm);
+    _.set(_states, path, fsm);
   } else {
     type = message.type;
     id = message.id;
-    fsm = _.get(_states, [type, id].join('.'));
+    path = [type, id].join('.');
+    behaviour = behaviours[type]
+    fsm = _.get(_states, path);
     if (fsm) {
-      behaviour.handle(fsm, message.action);
+      behaviour.handle(fsm, message.action.toLocaleLowerCase());
     }
   }
+  _.set(_states, path, fsm);
 }
 
 function updateAlarmedLayers () {
@@ -155,7 +166,7 @@ function updateAlarmedLayers () {
     for (i; i > -1; i -= 1) {
       obj = config[i];
       state = MapStore.getState(obj.type, obj.id);
-      if (state.Alarmed) {
+      if (_.contains(state, 'alarm')) {
         result[key] = true;
         break;
       }
@@ -164,22 +175,13 @@ function updateAlarmedLayers () {
   }, {});
 }
 
-function forceFsmState (stateStr) {
-    var stateList = stateStr.split('|');
-    var len = stateList.length;
-    var i;
-    var instance = this;
-    var child = null;
-    var state;
-    for (i = 0; i < len; i += 1) {
-        state = stateList[i];
-        instance.state = state;
-        child = instance.states[state]._child;
-        if (child) {
-            child.instance.initClient();
-            instance = child.instance;
-        }
-    }
+function stringToMap (stringState) {
+  return _(stringState)
+    .split('|')
+    .reduce(function (result, item) {
+      result[item] = true;
+      return result;
+    },{});
 }
 
 MapStore.requestMapConfig();

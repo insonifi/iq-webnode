@@ -27,7 +27,10 @@ var CameraFsm = new machina.BehavioralFsm({
       'md_stop': 'armed',
       'disarm': 'disarmed',
     },
-  }
+  },
+  init: function (client, state) {
+    this.handle(client, state);
+  },
 });
 
 var Camera = React.createClass({
@@ -37,7 +40,6 @@ var Camera = React.createClass({
   displayName: TYPE,
   componentDidMount: function () {
     MapStore.addStateUpdateListener(this._onUpdate);
-    MapStore.getState(TYPE, this.props.id);
     this._onUpdate();
   },
   componentWillUnmount: function () {
@@ -56,14 +58,11 @@ var Camera = React.createClass({
       transform: 'translate(-50%, -50%)',
       transition: 'none',
       '-webkit-transition': 'none',
+      background: state.alarmed ? 'red' : 'white',
     };
-    var classes = cx('camera', {
-        alarm: state.Alarmed,
-      });
     var actions = this.actions(TYPE, id);
     return  <Paper style={style} circle={true} className='icon'>
       <IconButton
-          className={classes}
           tooltip={name}
           onClick={this.toggleMenu}>
       </IconButton>
@@ -93,7 +92,8 @@ var Camera = React.createClass({
   },
   
   _onUpdate: function () {
-    this.replaceState(MapStore.getState(TYPE, this.props.id));
+    var state = MapStore.getState(TYPE, this.props.id);
+    this.replaceState(state);
   },
   
   toggleMenu: function () {
@@ -111,5 +111,5 @@ var Camera = React.createClass({
 //  }
 });
 MapStore.registerFactory(Camera);
-MapStore.registerBehaviour(TYPE, CameraFsm);
+MapStore.registerBehaviour(CameraFsm);
 module.exports = Camera;
