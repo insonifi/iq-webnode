@@ -166,7 +166,7 @@ function updateAlarmedLayers () {
     for (i; i > -1; i -= 1) {
       obj = config[i];
       state = MapStore.getState(obj.type, obj.id);
-      if (_.contains(state, 'alarm')) {
+      if (state.alarmed) {
         result[key] = true;
         break;
       }
