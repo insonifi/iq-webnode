@@ -150,7 +150,7 @@ function processMessage (message) {
     path = [type, id].join('.');
     behaviour = behaviours[type]
     fsm = _.get(_states, path);
-    if (fsm) {
+    if (behaviour && fsm) {
       behaviour.handle(fsm, message.action.toLocaleLowerCase());
     }
   }
