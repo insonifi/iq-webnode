@@ -35,11 +35,14 @@ wss.on('connection', function (ws) {
   ws.on('message', function (message) {
     var p_message = JSON.parse(message);
     if (p_message.msg === 'Event') {
+//      p_message.params.iidk = config.iidk;
+      p_message.params.slave_id = [config.host, config.iidk].join('.');
       iq.sendEvent(p_message);
     }
     if (p_message.msg === 'React') {
       iq.sendCoreReact(p_message);
     }
+    console.info(message);
   });
 })
 iq.on({}, function (msg) {

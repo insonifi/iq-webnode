@@ -35,7 +35,7 @@ var Layer = React.createClass({
     this._getSize();
   },
   render: function () {
-    var desc  = this.props.desc || {bg: "", config: []};
+    var desc = this.props.desc || {bg: '', config: []};
     var _config = _(desc.config);
     var x = this.state.x;
     var y = this.state.y;
