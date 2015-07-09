@@ -38,12 +38,10 @@ var Map = React.createClass({
   },
   componentDidMount: function () {
     MapStore.addChangeListener(this._onChange);
-    MapStore.addStateUpdateListener(this._onState);
     MapStore.addConfigListener(this._onConfig);
   },
   componentWillUnmount: function () {
     MapStore.removeChangeListener(this._onChange);
-    MapStore.removeStateUpdateListener(this._onState);
     MapStore.removeConfigListener(this._onState);
   },
   render: function () {
@@ -96,12 +94,7 @@ var Map = React.createClass({
       layers: _config.value(),
     });
   },
-  
-  _onState: function () {
-    this.setState({
-      layerAlarmed: MapStore.getAlarmed()
-    });
-  },
+
   
   _changeLayer: function (e, key, payload) {
     this.setState({selected: key});
