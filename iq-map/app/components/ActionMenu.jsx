@@ -30,7 +30,7 @@ var ActionMenu = React.createClass({
         position: 'absolute',
         left:  Math.sin(angularInterval * (i - 1)) * radius,
         top: Math.cos(angularInterval * (i - 1)) * radius,
-        transform: 'translate(-50%, -50%)',
+        transform: 'translate(-50%, -100%)',
         zIndex: 2,
       };
       i -= 1;
