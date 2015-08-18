@@ -45,10 +45,9 @@ var Map = React.createClass({
     MapStore.removeConfigListener(this._onState);
   },
   render: function () {
-    var layerNames = this.state.layerNames;
+    var {layerNames, layers, selected, connectDropTarget} = this.state;
     var hasLayers = (layerNames.length > 0);
-    var selected = this.state.selected;
-    var layer = this.state.layers[selected];
+    var layer = layers[selected];
     var labelStyle = {
       position: 'fixed',
       zIndex: 2,
@@ -58,17 +57,15 @@ var Map = React.createClass({
       position: 'fixed',
       zIndex: 2,
       right: '1%',
-   };
-    // style={labelStyle}
-    // style={fitButtonStyle}
+    };
     if (hasLayers) {
       return (
         <div>
           <RaisedButton onClick={this._toggle} label={layerNames[selected]} style={labelStyle} />
           <FitButton onClick={this._fit} style={fitButtonStyle} />
-          <Minimap desc={layer} />
+          <Minimap desc={layer} frameColor={Colors.deepOrange500} />
           <Viewport>
-            <Layer ref='Layer' desc={layer} maxZoom={5} />
+            <Layer ref='Layer' desc={layer} maxZoom={20} />
           </Viewport>
           <SVGLayerSelector
             ref='LayerList'

@@ -3,12 +3,6 @@
   "version": "0.1.0",
   "author": "insonifi@gmail.com",
   "description": "Web connector to iq-node",
-  "contributors": [
-    {
-      "name": "Zetsubouflash",
-      "email": "mail@gmail.com"
-    }
-  ],
   "scripts": {
     "bundle": "sed -e 's/.*browser.*//' -i node_modules/ws/package.json && find node_modules/ -iname *fallback.js -exec rename .fallback.js .js {} \\; && browserify --bare webnode.js | uglifyjs -c -m --noerr > web.js"
   },

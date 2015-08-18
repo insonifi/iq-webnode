@@ -9,7 +9,9 @@ module.exports = {
     RECV_MSG: null,
     CONFIG: null,
     LAYER_SELECT: null,
-    LAYER_ALARM: null
+    LAYER_ALARM: null,
+    LAYER_POSITION: null,
+    FRAME: null,
   }),
 
   PayloadSources: keyMirror({

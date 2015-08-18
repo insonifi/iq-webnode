@@ -9,7 +9,7 @@ module.exports = {
   select: function(index) {
     MapDispatcher.handleViewAction({
       type: ActionTypes.LAYER_SELECT,
-      index: index
+      index,
     });
   },
   
@@ -17,6 +17,19 @@ module.exports = {
     MapDispatcher.handleViewAction({
       type: ActionTypes.LAYER_ALARM,
       list: indexList
+    });
+  },
+  updateFrame: function(frame) {
+    MapDispatcher.handleViewAction({
+      type: ActionTypes.FRAME,
+      frame,
+    });
+  },
+  
+  updateLayerPosition: function(position) {
+    MapDispatcher.handleViewAction({
+      type: ActionTypes.LAYER_POSITION,
+      position,
     });
   }
 

@@ -7,19 +7,31 @@ var MapConfig = require('../utils/MapConfig');
 var EventEmitter = require('events').EventEmitter;
 var _ = require('lodash');
 
-var ActionTypes = MapConstants.ActionTypes;
+var {ActionTypes, PayloadSources} = MapConstants;
 var CHANGE_EVENT = 'change';
 var CONFIG = 'config';
 var MSG = 'msg';
+var FRAME = 'frame';
+var LAYER_CHANGE = 'layer';
 
 var _states = {};
 var _mapConfig = {};
 var _layerSelected = 0;
-var _layerAlarmed= {};
+var _layerAlarmed = {};
+var _mapFrame = {
+  x: 0,
+  y: 0,
+  w: 0,
+  h: 0,
+};
+var _layerPosition = {
+  x: 0,
+  y: 0,
+  s: 0,
+};
 var behaviours = {};
 var factories = {};
 var requestTracker = {};
-
 
 var MapStore = _.assign({}, EventEmitter.prototype, {
 
@@ -32,9 +44,13 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
   emitStateUpdate: function() {
     this.emit(MSG);
   },
-  /**
-   * @param {function} callback
-   */
+  emitFrameChange: function() {
+    this.emit(FRAME);
+  },
+  emitLayerChange: function() {
+    this.emit(LAYER_CHANGE);
+  },
+  
   addChangeListener: function(callback) {
     this.on(CHANGE_EVENT, callback);
   },
@@ -61,6 +77,22 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
   
   requestMapConfig: function () {
     MapConfig.requestMapConfig('map.csv');
+  },
+  
+  addFrameChangeListener: function(callback) {
+    this.on(FRAME, callback);
+  },
+
+  removeFrameChangeListener: function(callback) {
+    this.removeListener(FRAME, callback);
+  },
+  
+  addLayerChangeListener: function(callback) {
+    this.on(LAYER_CHANGE, callback);
+  },
+
+  removeLayerChangeListener: function(callback) {
+    this.removeListener(LAYER_CHANGE, callback);
   },
   
   registerFactory: function (component) {
@@ -102,33 +134,61 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
   
   getAlarmed: function () {
     return _layerAlarmed;
-  }
+  },
+  
+  getFrame: function () {
+    return _mapFrame;
+  },
+  
+  getLayerPosition: function () {
+    return _layerPosition;
+  },
 
 });
 
 MapStore.dispatchToken = MapDispatcher.register(function(payload) {
+  var source = payload.source;
   var action = payload.action;
   
-  switch(action.type) {
+  switch(source) {
+    case PayloadSources.SERVER_ACTION:
+      switch(action.type) {
+        case ActionTypes.RECV_MSG:
+          processMessage(action.body);
+          updateAlarmedLayers();
+          MapStore.emitStateUpdate();
+          break;
 
-    case ActionTypes.RECV_MSG:
-      processMessage(action.body);
-      updateAlarmedLayers();
-      MapStore.emitStateUpdate();
+        case ActionTypes.CONFIG:
+          _mapConfig = action.config;
+          MapStore.emitConfig();
+          break;
+
+        default:
+          // do nothing
+      }
       break;
-      
-    case ActionTypes.CONFIG:
-      _mapConfig = action.config;
-      MapStore.emitConfig();
-      break;
-      
-    case ActionTypes.LAYER_SELECT:
-      _layerSelected = action.index;
-      MapStore.emitChange();
-      break;
-      
+    case PayloadSources.VIEW_ACTION:
+      switch(action.type) {
+        case ActionTypes.LAYER_SELECT:
+            _layerSelected = action.index;
+            MapStore.emitChange();
+            break;
+
+        case ActionTypes.FRAME:
+          _mapFrame = action.frame;
+          MapStore.emitFrameChange();
+          break;
+          
+        case ActionTypes.LAYER_POSITION:
+          _layerPosition = action.position;
+          MapStore.emitLayerChange();
+          break;
+          
+        default:
+          // do nothing
+      }
     default:
-      // do nothing
   }
 
 });

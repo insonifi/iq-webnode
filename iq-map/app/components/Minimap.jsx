@@ -1,25 +1,35 @@
 'use strict'
 var React = require('react');
+var MapStore = require('../stores/MapStore');
+var {updateLayerPosition} = require('../actions/MapActionCreators');
 var scale = 1;
 var Minimap = React.createClass({
   getInitialState: function () {
     return {
       x: 10,
       y: 10,
-      ox: 0,
-      oy: 0,
       w: 0,
       h: 0,
       s: 0.2,
       p: 3,
+      frame: {
+        l: 0,
+        t: 0,
+        r: 0,
+        b: 0,
+      }
     }
   },
   displayName: 'Minimap',
   componentDidMount: function () {
+    MapStore.addStateUpdateListener(this.renderLayer);
+    MapStore.addFrameChangeListener(this.updateFrame);
     this.renderBg(this.props.desc.bg);
   },
-  componentWillReceiveProps: function (newProps) {
-    this.renderBg(newProps.desc.bg);
+  componentWillReceiveProps: function (newProps, oldProps) {
+//    if (newProps !== oldProps) {
+      this.renderBg(newProps.desc.bg);
+//    }
   },
   componentDidUpdate: function () {
     this.renderLayer();
@@ -27,34 +37,74 @@ var Minimap = React.createClass({
   componentWillUpdate: function () {
     // Subscribe to object state change
   },
+  componentWillUnmount: function () {
+    MapStore.removeStateUpdateListener(this.renderLayer);
+    MapStore.removeFrameChangeListener(this.updateFrame);
+  },
   render: function () {
+    var m_width = this.state.w * this.state.s;
+    var m_height = this.state.h * this.state.s;
+    var frame = this.state.frame;
+    var frameColor = [
+      parseInt(this.props.frameColor.slice(1,3), 16),
+      parseInt(this.props.frameColor.slice(3,5), 16),
+      parseInt(this.props.frameColor.slice(5,), 16)
+    ];
     var minimapStyle = {
-      left: this.state.x + this.state.ox,
-      top: this.state.y + this.state.oy,
-      width: this.state.w * this.state.s,
-      height: this.state.h * this.state.s,
+      left: this.state.x,
+      top: this.state.y,
+      width: m_width,
+      height: m_height,
     };
-    return <div className='minimap' style={minimapStyle}
-//    onDragStart={this._dragStart} 
-//      onDragEnd={this._dragStop}
-      onDrag={this._drag} >
-      <canvas className='minimap-bg' ref='bg'/>
-      <canvas className='minimap-layer' ref='layer' />
+    var frameStyle = {
+      position: 'absolute',
+      left: m_width * frame.l,
+      top: m_height * frame.t,
+      right: m_width * frame.r,
+      bottom: m_height * frame.b,
+      background: 'rgba($, 0.1)'.replace('$', frameColor),
+      borderStyle: 'solid',
+      borderWidth: 1,
+      borderColor: this.props.frameColor,
+      zIndex: 2,
+    };
+    return <div className='minimap' style={minimapStyle}>
+      <canvas className='minimap-bg' ref='bg' />
+      <canvas className='minimap-layer' ref='layer' onClick={this.sendPosition} />
+      <div style={frameStyle} ref='frame' />
     </div>
   },
-  _dragStart: function (e) {
-  },
-  _drag: function(e) {
-    if ((e.pageX + e.pageY) > 0) {
+  _move: function(e) {
+    var {pageX, pageY} = e;
+    this._log(e);
+    if ((pageX + pageY) > 0) {
       this.setState({
-        x: e.pageX,
-        y: e.pageY,
+        x: pageX,
+        y: pageY,
       });
     }
   },
-  
-  _dragStop: function(e) {
+  _log: function (e) {
+    var {pageX, pageY} = e;
+    console.log(pageX, pageY);
   },
+  
+  updateFrame: function () {
+    this.setState({
+      frame: MapStore.getFrame()
+    });
+  },
+      
+  sendPosition: function (e) {
+    var scale = this.state.s;
+    var x = (e.clientX - this.state.x) / (this.state.w * scale);
+    var y = (e.clientY - this.state.y) / (this.state.h * scale);
+    updateLayerPosition({
+      x,
+      y,
+    });
+  },
+  
   renderBg: function (src) {
     var bgcanvas = React.findDOMNode(this.refs.bg);
     var image = document.createElement('img');
@@ -91,7 +141,9 @@ var Minimap = React.createClass({
     offctx.save();
     offctx.scale(scale, scale);
     _.forEach(this.props.desc.config, function (obj) {
-      offctx.fillStyle = 'red';
+      var state = MapStore.getState(obj.type, obj.id);
+      
+      offctx.fillStyle = state.alarmed ? 'red' : 'deepskyblue';
       offctx.fillRect(obj.x, obj.y, p / scale, p / scale);
     });
     offctx.restore();

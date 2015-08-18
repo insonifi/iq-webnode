@@ -1,18 +1,12 @@
 'use strict'
 var WebSocket = require('ws');
 var MapDispatcher = require('../dispatcher/MapDispatcher');
-var MapConstants = require('../constants/MapConstants');
+var ServerActions = require('../actions/ServerActionCreators');
 var ws = new WebSocket('ws://${host}:58888'.replace('${host}', window.location.hostname));
-
-
-var ActionTypes = MapConstants.ActionTypes;
 
 ws.onmessage = function (frame) {
   var message = JSON.parse(frame.data);
-  MapDispatcher.handleServerAction({
-    type: ActionTypes.RECV_MSG,
-    body: message
-  });
+  ServerActions.handleServerMessage(message);
 }
 
 

@@ -6,10 +6,10 @@ var ActionTypes = MapConstants.ActionTypes;
 
 module.exports = {
 
-  msg: function(message) {
-    MapDispatcher.handleViewAction({
-      type: ActionTypes.ACTION,
-      message: message
+  handleServerMessage: function(message) {
+    MapDispatcher.handleServerAction({
+      type: ActionTypes.RECV_MSG,
+      body: message
     });
   }
 
