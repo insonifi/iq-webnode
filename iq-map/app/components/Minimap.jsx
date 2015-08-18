@@ -11,7 +11,7 @@ var Minimap = React.createClass({
       w: 0,
       h: 0,
       s: 0.2,
-      p: 3,
+      point: 3,
       frame: {
         l: 0,
         t: 0,
@@ -123,7 +123,6 @@ var Minimap = React.createClass({
       bgctx.scale(scale, scale);
       bgctx.drawImage(image, 0, 0);
       bgctx.restore();
-      // save scale somewhere
       this.renderLayer();
     }).bind(this));
     image.src = src;
@@ -131,20 +130,19 @@ var Minimap = React.createClass({
   renderLayer: function () {
     var lcanvas = React.findDOMNode(this.refs.layer);
     var offscreen = document.createElement('canvas');
-    var scale = this.state.s;
-    var p = this.state.p
+    var {s, point} = this.state
     offscreen.width = this.state.w;
     offscreen.height = this.state.h;
-    lcanvas.width = this.state.w * scale;
-    lcanvas.height = this.state.h * scale;
+    lcanvas.width = this.state.w * s;
+    lcanvas.height = this.state.h * s;
     var offctx = offscreen.getContext('2d');
     offctx.save();
-    offctx.scale(scale, scale);
+    offctx.scale(s, s);
     _.forEach(this.props.desc.config, function (obj) {
       var state = MapStore.getState(obj.type, obj.id);
       
       offctx.fillStyle = state.alarmed ? 'red' : 'deepskyblue';
-      offctx.fillRect(obj.x, obj.y, p / scale, p / scale);
+      offctx.fillRect(obj.x, obj.y, point / s, point / s);
     });
     offctx.restore();
     var lctx = lcanvas.getContext('2d');

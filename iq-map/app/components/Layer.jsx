@@ -114,41 +114,31 @@ var Layer = React.createClass({
       this._stopDrag(e);
       return false;
     }
-    
-    var s = this.state.scale;
     var x = this.state.x;
     var y = this.state.y;
-    var scaledWidth = this.state.w * s;
-    var scaledHeight = this.state.h * s;
     var ex = e.clientX;
     var ey = e.clientY;
     var dx = x + ex - this.state.ox;
     var dy = y + ey - this.state.oy;
     // Check bounds
-    dx = Math.min(dx, 0);
-    dy = Math.min(dy, 0);
-    dx = Math.max(dx, innerWidth - scaledWidth);
-    dy = Math.max(dy, innerHeight - scaledHeight);
+    var {x, y} = this._boundedPosition(dx, dy);
     this.setState({
       ox: ex,
       oy: ey,
-      x: dx,
-      y: dy,
+      x,
+      y,
     });
   },
   _zoom: function (e) {
     var s = -Math.sign(e.deltaY);
-    var oscale = this.state.scale;
-    var scale = oscale * (1 + 0.1 * s);
+    var {x, y, w, h, scale} = this.state;
+    var oscale = scale;
+    var scale = scale * (1 + 0.1 * s);
     if (scale > this.props.maxZoom || scale < this.state.minZoom) {
       return;
     }
     var dscale = oscale - scale;
     var rect = e.currentTarget.getBoundingClientRect();
-    var x = this.state.x;
-    var y = this.state.y;
-    var w = this.state.w;
-    var h = this.state.h;
     var ox = (e.clientX - x) / rect.width;
     var oy = (e.clientY - y) / rect.height;
     var dx = dscale * w * ox;
@@ -208,17 +198,26 @@ var Layer = React.createClass({
     var pos = MapStore.getLayerPosition();
     var scaledWidth = scale * w;
     var scaledHeight = scale * h;
-    var x = innerWidth * 0.5 - scaledWidth * pos.x;
-    var y = innerHeight * 0.5 - scaledHeight * pos.y;
+    var _x = innerWidth * 0.5 - scaledWidth * pos.x;
+    var _y = innerHeight * 0.5 - scaledHeight * pos.y;
     // Check bounds
-    x = Math.min(x, 0);
-    y = Math.min(y, 0);
-    x = Math.max(x, innerHeight - scaledWidth);
-    y = Math.max(y, innerWidth - scaledHeight);
+    var {x, y} = this._boundedPosition(_x, _y);
     this.setState({
       x,
       y,
     });
+  },
+  _boundedPosition: function (_x, _y) {
+    var x = _x;
+    var y = _y;
+    var s = this.state.scale;
+    var scaledWidth = this.state.w * s;
+    var scaledHeight = this.state.h * s;
+    x = Math.min(x, 0);
+    y = Math.min(y, 0);
+    x = Math.max(x, innerWidth - scaledWidth);
+    y = Math.max(y, innerHeight - scaledHeight);
+    return {x, y};
   },
 });
 
