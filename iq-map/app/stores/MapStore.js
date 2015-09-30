@@ -12,7 +12,7 @@ var CHANGE_EVENT = 'change';
 var CONFIG = 'config';
 var MSG = 'msg';
 var FRAME = 'frame';
-var LAYER_CHANGE = 'layer';
+var LAYER_POS = 'layer';
 
 var _states = {};
 var _mapConfig = {};
@@ -47,8 +47,8 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
   emitFrameChange: function() {
     this.emit(FRAME);
   },
-  emitLayerChange: function() {
-    this.emit(LAYER_CHANGE);
+  emitLayerPositionChange: function() {
+    this.emit(LAYER_POS);
   },
   
   addChangeListener: function(callback) {
@@ -75,10 +75,6 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
     this.removeListener(CONFIG, callback);
   },
   
-  requestMapConfig: function () {
-    MapConfig.requestMapConfig('map.csv');
-  },
-  
   addFrameChangeListener: function(callback) {
     this.on(FRAME, callback);
   },
@@ -87,12 +83,12 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
     this.removeListener(FRAME, callback);
   },
   
-  addLayerChangeListener: function(callback) {
-    this.on(LAYER_CHANGE, callback);
+  addLayerPositionChange: function(callback) {
+    this.on(LAYER_POS, callback);
   },
 
-  removeLayerChangeListener: function(callback) {
-    this.removeListener(LAYER_CHANGE, callback);
+  removeLayerPositionChange: function(callback) {
+    this.removeListener(LAYER_POS, callback);
   },
   
   registerFactory: function (component) {
@@ -101,6 +97,10 @@ var MapStore = _.assign({}, EventEmitter.prototype, {
   
   registerBehaviour: function (fsm) {
     behaviours[fsm.namespace] = fsm;
+  },
+   
+  requestMapConfig: function () {
+    MapConfig.requestMapConfig('map.csv');
   },
   
   getFactory: function (type) {
@@ -182,7 +182,7 @@ MapStore.dispatchToken = MapDispatcher.register(function(payload) {
           
         case ActionTypes.LAYER_POSITION:
           _layerPosition = action.position;
-          MapStore.emitLayerChange();
+          MapStore.emitLayerPositionChange();
           break;
           
         default:

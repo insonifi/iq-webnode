@@ -64,6 +64,7 @@ var Map = React.createClass({
           <RaisedButton onClick={this._toggle} label={layerNames[selected]} style={labelStyle} />
           <FitButton onClick={this._fit} style={fitButtonStyle} />
           <Minimap desc={layer} frameColor={Colors.deepOrange500} />
+        
           <Viewport>
             <Layer ref='Layer' desc={layer} maxZoom={20} />
           </Viewport>
@@ -91,7 +92,6 @@ var Map = React.createClass({
       layers: _config.value(),
     });
   },
-
   
   _changeLayer: function (e, key, payload) {
     this.setState({selected: key});

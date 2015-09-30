@@ -24,16 +24,17 @@ var Layer = React.createClass({
   },
   displayName: 'Layer',
   componentDidMount: function () {
-    MapStore.addLayerChangeListener(this.updatePosition);
+    MapStore.addLayerPositionChange(this.updatePosition);
     this._getSize();
   },
   componentWillUnmount: function () {
-    MapStore.removeLayerChangeListener(this.updatePosition);
+    MapStore.removeLayerPositionChange(this.updatePosition);
   },
   componentWillReceiveProps: function () {
     this._getSize();
   },
   componentDidUpdate: function () {
+    /* TODO: Called multiple times on layer change */
     var b = React.findDOMNode(this).getBoundingClientRect();
     var rel_l = Math.max(-b.left, 0)/b.width;
     var rel_t = Math.max(-b.top, 0)/b.height;
