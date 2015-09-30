@@ -1,13 +1,13 @@
 'use strict'
 var React = require('react');
+var Draggable = require('react-draggable');
+var {FlatButton} = require('material-ui');
 var MapStore = require('../stores/MapStore');
 var {updateLayerPosition} = require('../actions/MapActionCreators');
 var scale = 1;
 var Minimap = React.createClass({
   getInitialState: function () {
     return {
-      x: 10,
-      y: 10,
       w: 0,
       h: 0,
       s: 0.2,
@@ -51,8 +51,6 @@ var Minimap = React.createClass({
       parseInt(this.props.frameColor.slice(5,), 16)
     ];
     var minimapStyle = {
-      left: this.state.x,
-      top: this.state.y,
       width: m_width,
       height: m_height,
     };
@@ -68,11 +66,25 @@ var Minimap = React.createClass({
       borderColor: this.props.frameColor,
       zIndex: 2,
     };
-    return <div className='minimap' style={minimapStyle}>
-      <canvas className='minimap-bg' ref='bg' />
-      <canvas className='minimap-layer' ref='layer' onClick={this.sendPosition} />
-      <div style={frameStyle} ref='frame' />
-    </div>
+    var handleSize = 16;
+    var handleStyle = {
+      display: 'inline',
+      minWidth: handleSize,
+      height: m_height,
+      left: -handleSize,
+      borderStyle: 'solid',
+      borderWidth: 1,
+      borderColor: 'rgba(0,0,0, 0.1)',
+      zIndex: 2,
+    };
+    return <Draggable axis='both' start={{x: 10, y: 10}} handle='.handle'>
+      <div className='minimap' style={minimapStyle}>
+        <FlatButton className='handle dropshadow' style={handleStyle} />
+        <canvas className='minimap-bg dropshadow' ref='bg' />
+        <canvas className='minimap-layer' ref='layer' onClick={this.sendPosition} />
+        <div style={frameStyle} ref='frame' />
+      </div>
+    </Draggable>
   },
   _move: function(e) {
     var {pageX, pageY} = e;
@@ -97,8 +109,9 @@ var Minimap = React.createClass({
       
   sendPosition: function (e) {
     var scale = this.state.s;
-    var x = (e.clientX - this.state.x) / (this.state.w * scale);
-    var y = (e.clientY - this.state.y) / (this.state.h * scale);
+    var rect = React.findDOMNode(this).getBoundingClientRect();
+    var x = (e.clientX - rect.left) / (this.state.w * scale);
+    var y = (e.clientY - rect.top) / (this.state.h * scale);
     updateLayerPosition({
       x,
       y,

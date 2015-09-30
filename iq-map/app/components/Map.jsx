@@ -28,6 +28,8 @@ var Map = React.createClass({
       selected: 0,
       layerNames: [],
       layers: [],
+      mini_x: 10,
+      mini_y: 10,
     };
   },
   displayName: 'Map',
@@ -45,7 +47,7 @@ var Map = React.createClass({
     MapStore.removeConfigListener(this._onState);
   },
   render: function () {
-    var {layerNames, layers, selected, connectDropTarget} = this.state;
+    var {layerNames, layers, selected, mini_x, mini_y} = this.state;
     var hasLayers = (layerNames.length > 0);
     var layer = layers[selected];
     var labelStyle = {
