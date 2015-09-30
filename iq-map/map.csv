@@ -1,0 +1,7 @@
+1,LAYER,Layer One,http://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg
+1,CAM,Camera 1,120,200
+2,CAM,Camera 2,634,332
+3,CAM,Camera 3,322,423
+2,LAYER,Layer Two,http://upload.wikimedia.org/wikipedia/commons/e/e2/MessierStarChart.svg
+3,CAM,Camera 3 (out),344,585
+4,CAM,Camera 4,100,500
