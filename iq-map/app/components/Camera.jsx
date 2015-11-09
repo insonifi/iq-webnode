@@ -1,16 +1,18 @@
 'use strict'
-var React = require('react');
-var cx = require('classnames');
-var {Paper, IconButton} = require('material-ui');
-var ActionMenu = require('../components/ActionMenu');
-var MapStore = require('../stores/MapStore');
-var ObjectAction = require('../actions/ObjectActionCreators.js');
-var machina = require('machina');
+import React, {Component, cloneElement} from 'react';
+import cx from 'classnames';
 
-var timeout = 1000;
-var TYPE = 'CAM';
+import IconButton from 'material-ui/lib/icon-button';
+import ActionMenu from '../components/ActionMenu';
+import {registerFactory, registerBehaviour} from '../actions/MapActionCreators';
+import MapStore from '../stores/MapStore';
+import {send, requestState} from '../actions/ObjectActionCreators.js';
+import machina from 'machina';
 
-var CameraFsm = new machina.BehavioralFsm({
+const timeout = 1000;
+const TYPE = 'CAM';
+
+const CameraFsm = new machina.BehavioralFsm({
   namespace: TYPE,
   initialState: 'disarmed',
   states: {
@@ -28,75 +30,61 @@ var CameraFsm = new machina.BehavioralFsm({
       'disarm': 'disarmed',
     },
   },
-  init: function (client, state) {
+  init(client, state) {
     this.handle(client, state);
   },
 });
 
-var Camera = React.createClass({
-  getInitialState: function () {
-    return {}
-  },
-  displayName: TYPE,
-  componentDidMount: function () {
-    MapStore.addStateUpdateListener(this._onUpdate);
-    this._onUpdate();
-  },
-  componentWillUnmount: function () {
-    MapStore.removeStateUpdateListener(this._onUpdate);
-  },
-  render: function () {
-    var x = this.props.x;
-    var y = this.props.y;
-    var id = this.props.id;
-    var name = this.props.name;
-    var state = this.state;
-    var style = {
+class Camera extends Component {
+  constructor(props) {
+    super(props);
+    this.toggleMenu = this.toggleMenu.bind(this);
+  }
+  componentDidMount() {
+  }
+  componentWillUnmount() {
+  }
+  render() {
+    let {x, y, id, name, state} = this.props;
+    let style = {
       position: 'absolute',
-      top: y,
-      left: x,
-      transform: 'translate(-50%, -50%)',
-      transition: 'none',
-      '-webkit-transition': 'none',
-      background: state.alarmed ? 'red' : 'white',
+      top: Math.round(y),
+      left: Math.round(x),
     };
-    var actions = this.actions(TYPE, id);
-    return  <Paper style={style} circle={true} className='icon'>
-      <IconButton
-          tooltip={name}
-          onClick={this.toggleMenu}>
-      </IconButton>
-      <ActionMenu ref='actionMenu' x={x} y={y} actions={actions} />
-    </Paper>
-  },
-  
-  actions: function (type, id) {
+    let classnames = cx('icon camera', state);
+    let actions = this.actions(id);
+    let component = (
+      <div>
+        <IconButton iconClassName={classnames} tooltip={name} onClick={this.toggleMenu} />
+        <ActionMenu ref='actionMenu' x={x} y={y} actions={actions} />
+      </div>
+    );
+    return cloneElement(component, {
+      style,
+    });
+  }
+  actions(id) {
     return [
       {
         label: 'Arm',
-        handler: function () { ObjectAction.send({type: type, id: id, action: 'ARM'}); }
+        handler() { send({type: TYPE, id, action: 'ARM'}); },
       },
       {
         label: 'Disarm',
-        handler: function () { ObjectAction.send({type: type, id: id, action: 'DISARM'});}
+        handler() { send({type: TYPE, id, action: 'DISARM'}); },
       },
       {
         label: 'Get state',
-        handler: function () { ObjectAction.requestState(type, id); }
+        handler() { requestState(TYPE, id); }
       },
       {
         label: 'Something',
-        handler: function () { ObjectAction.log(Date.now()); }
+        handler() { send({type: 'MACRO', id: '1', action: 'RUN'}); }
       }
     ]
-  },
-  
-  _onUpdate: function () {
-    var state = MapStore.getState(TYPE, this.props.id);
-    this.replaceState(state);
-  },
-  
-  toggleMenu: function () {
+  }
+
+  toggleMenu() {
     this.refs.actionMenu.toggle();
   }
 //  _onMouseEnter: function () {
@@ -105,11 +93,12 @@ var Camera = React.createClass({
 //    }).bind(this), timeout);
 //    this.setState({timer: timer});
 //  },
-//  
+//
 //  _onMouseLeave: function () {
 //    clearTimeout(this.state.timer);
 //  }
-});
-MapStore.registerFactory(Camera);
-MapStore.registerBehaviour(CameraFsm);
-module.exports = Camera;
+};
+Camera.prototype.displayName = TYPE;
+MapStore.dispatch(registerFactory(Camera));
+MapStore.dispatch(registerBehaviour(CameraFsm));
+export default Camera;

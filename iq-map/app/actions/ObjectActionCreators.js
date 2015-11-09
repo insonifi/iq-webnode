@@ -1,9 +1,7 @@
 'use strict'
-var MapDispatcher = require('../dispatcher/MapDispatcher');
-var MapConstants = require('../constants/MapConstants');
+var MapStore = require('../stores/MapStore');
+var ActionTypes = require('../constants/MapConstants');
 var IqNode = require('../utils/IqNode');
-
-var ActionTypes = MapConstants.ActionTypes;
 
 module.exports = {
 
@@ -14,7 +12,7 @@ module.exports = {
 //    });
     IqNode.react(message);
   },
-  
+
   requestState: function (type, id) {
     IqNode.requestState(type, id);
   },

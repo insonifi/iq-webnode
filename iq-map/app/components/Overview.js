@@ -1,9 +1,6 @@
 'use strict'
 var React = require('react');
 var Overview = React.createClass({
-  getInitialState: function () {
-    return {}
-  },
   displayName: 'Overview',
   componentDidMount: function () {
   },

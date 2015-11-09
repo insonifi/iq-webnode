@@ -11,19 +11,13 @@ var Viewport = React.createClass({
   componentDidMount: function () {
   },
   render: function () {
-    var style = {
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-      overflow: 'hidden'
-    }
-    return <div style={style}>
+    return <div className='viewport'>
       {this.props.children}
     </div>
   },
-  
 
-  
+
+
 });
 
 module.exports = Viewport;

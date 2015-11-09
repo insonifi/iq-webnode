@@ -1,62 +1,58 @@
 'use strict'
-var React = require('react');
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-var RaisedButton = require('material-ui').RaisedButton;
-var _ = require('lodash');
+import React, {Component} from 'react';
+import RaisedButton from 'material-ui/lib/raised-button';
+import _ from 'lodash';
 
-var ActionMenu = React.createClass({
-  getInitialState: function () {
-    return {
+class ActionMenu extends Component {
+  constructor(props) {
+    super();
+    this.state = {
       isVisible: false,
-      delta: 0
+      delta: 0,
     }
-  },
-  displayName: 'ActionMenu',
-  render: function () {
-    var _actions = _(this.props.actions);
-    var i = this.props.actions.length;
-    var radius = (20 + Math.log(i) * 60);
-    var delta = this.state.delta;
-    var angularInterval = 2*Math.PI/i;
-    var isVisible = this.state.isVisible;
-    var containerStyle = {
-      position: 'relative',
-      left: '50%',
-      top: '-50%',
+    this.open = this.open.bind(this);
+    this.close = this.close.bind(this);
+    this.toggle = this.toggle.bind(this);
+  }
+  render() {
+    let {actions} = this.props;
+    let {delta, isVisible} = this.state;
+    let i = actions.length;
+    let radius = (20 + Math.log(i) * 60);
+    let angularInterval = 2*Math.PI/i;
+    let containerStyle = {
       display: isVisible ? 'block' : 'none'
     };
-    var children = isVisible ? _actions.map(function (action) {
+    let {sin, cos, round} = Math;
+    let children = isVisible ? _.map(actions, (action) => {
       var itemStyle = {
-        position: 'absolute',
-        left:  Math.sin(angularInterval * (i - 1)) * radius,
-        top: Math.cos(angularInterval * (i - 1)) * radius,
-        transform: 'translate(-50%, -100%)',
-        zIndex: 2,
+        left:  round(sin(angularInterval * (i - 1)) * radius),
+        top: round(cos(angularInterval * (i - 1)) * radius),
       };
       i -= 1;
 
       return (
-        <div style={itemStyle} key={i}>
+        <div className='action-menu__item' style={itemStyle} key={i}>
           <RaisedButton label={action.label} onClick={action.handler} />
         </div>
       )
-    }).value() : null;
+    }) : null;
     return (
-      <div className='' style={containerStyle}
+      <div className='action-menu' style={containerStyle}
           onClick={this.close}>
         {children}
       </div>
     )
-  },
-  open: function () {
+  }
+  open() {
     this.setState({isVisible: true});
-  },
-  close: function () {
+  }
+  close() {
     this.setState({isVisible: false});
-  },
-  toggle: function () {
+  }
+  toggle() {
     this.setState({isVisible: !this.state.isVisible});
   }
-});
+};
 
-module.exports = ActionMenu;
+export default ActionMenu;

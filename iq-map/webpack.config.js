@@ -1,4 +1,5 @@
 var CompressionPlugin = require("compression-webpack-plugin");
+var webpack = require('webpack');
 module.exports = {
   entry: {
     app: './app/index'
@@ -7,9 +8,16 @@ module.exports = {
     loaders: [
       { test: /\.css$/, loader: 'style!css' },
       { test: /\.less$/, loader: 'style!css!less' },
-      { test: /\.jsx?$/, loader: 'jsx?harmony' },
+      {
+        test: /\.(jsx?|es6)$/,
+        loader: 'babel',
+        query: {
+          presets: ['es2015', 'react']
+        },
+        exclude: /node_modules/
+      },
       { test: /\.(jpe?g|png|gif|svg)$/, loaders: [
-            'file?hash=sha512&digest=hex&name=[hash].[ext]',
+            'file?name=img/[name].[ext]',
             'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
         ] }
     ]
@@ -22,10 +30,13 @@ module.exports = {
   },
   resolve: {
     modulesDirectories: ['node_modules'],
-    extensions: ['', '.js', '.jsx']
+    extensions: ['', '.js', '.jsx', 'es6']
   },
   devtool: 'source-map',
   plugins: [
+        new webpack.DefinePlugin({NODE_ENV: 'production'}),
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.UglifyJsPlugin(),
         new CompressionPlugin({
             asset: "{file}",
             algorithm: "gzip",

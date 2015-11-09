@@ -1,36 +1,61 @@
 'use strict'
-var MapDispatcher = require('../dispatcher/MapDispatcher');
-var MapConstants = require('../constants/MapConstants');
+import ActionTypes from '../constants/MapConstants';
 
-var ActionTypes = MapConstants.ActionTypes;
-
-module.exports = {
-
-  select: function(index) {
-    MapDispatcher.handleViewAction({
-      type: ActionTypes.LAYER_SELECT,
-      index,
-    });
-  },
-  
-  alarm: function(indexList) {
-    MapDispatcher.handleViewAction({
-      type: ActionTypes.LAYER_ALARM,
-      list: indexList
-    });
-  },
-  updateFrame: function(frame) {
-    MapDispatcher.handleViewAction({
-      type: ActionTypes.FRAME,
-      frame,
-    });
-  },
-  
-  updateLayerPosition: function(position) {
-    MapDispatcher.handleViewAction({
-      type: ActionTypes.LAYER_POSITION,
-      position,
-    });
+export function selectLayer(index) {
+  return {
+    type: ActionTypes.LAYER_SELECT,
+    index,
+  };
+};
+export function alarm(indices) {
+  return {
+    type: ActionTypes.LAYERS_ALARMED,
+    indices
+  };
+};
+export function updateFrame(frame) {
+  return {
+    type: ActionTypes.FRAME,
+    frame,
+  };
+};
+export function updateLayer(position) {
+  return {
+    type: ActionTypes.LAYER_GEOMETRY,
+    position,
+  };
+};
+export function updateLayerCentre(point) {
+  return {
+    type: ActionTypes.LAYER_POINT,
+    point,
+  };
+};
+export function registerFactory(component) {
+  return {
+    type: ActionTypes.REGISTER_FACTORY,
+    component,
+  };
+};
+export function registerBehaviour(fsm) {
+  return {
+    type: ActionTypes.REGISTER_BEHAVIOUR,
+    fsm,
+  };
+};
+export function toggleSelector() {
+  return {
+    type: ActionTypes.TOGGLE_SELECTOR,
+  };
+};
+export function fitLayer () {
+  return {
+    type: ActionTypes.LAYER_FIT,
   }
-
+};
+export function setFilter (filter) {
+  return {
+    type: ActionTypes.LAYER_FILTER,
+    filter,
+  }
 };

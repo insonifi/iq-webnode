@@ -1,22 +1,20 @@
 'use strict'
-var keyMirror = require('react/lib/keyMirror');
+import keyMirror from 'key-mirror';
 
-module.exports = {
-
-  ActionTypes: keyMirror({
-    EVENT: null,
-    REACT: null,
-    RECV_MSG: null,
-    CONFIG: null,
-    LAYER_SELECT: null,
-    LAYER_ALARM: null,
-    LAYER_POSITION: null,
-    FRAME: null,
-  }),
-
-  PayloadSources: keyMirror({
-    SERVER_ACTION: null,
-    VIEW_ACTION: null
-  })
-
-};
+export default keyMirror({
+  EVENT: null,
+  REACT: null,
+  RECV_MSG: null,
+  CONFIG: null,
+  LAYER_SELECT: null,
+  LAYER_ALARM: null,
+  LAYER_GEOMETRY: null,
+  LAYER_POINT: null,
+  LAYER_FIT: null,
+  LAYER_FILTER: null,
+  LAYERS_ALARMED: null,
+  FRAME: null,
+  REGISTER_FACTORY: null,
+  REGISTER_BEHAVIOUR: null,
+  TOGGLE_SELECTOR: null,
+});

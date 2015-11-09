@@ -1,35 +1,33 @@
 'use strict'
-var WebSocket = require('ws');
-var MapDispatcher = require('../dispatcher/MapDispatcher');
-var ServerActions = require('../actions/ServerActionCreators');
-var ws = new WebSocket('ws://${host}:58888'.replace('${host}', window.location.hostname));
+import WebSocket from 'ws';
+import MapStore from '../stores/MapStore';
+import {handleServerMessage} from '../actions/ServerActionCreators';
+const ws = new WebSocket(`ws://${window.location.hostname}:58888`);
 
-ws.onmessage = function (frame) {
-  var message = JSON.parse(frame.data);
-  ServerActions.handleServerMessage(message);
-}
+ws.onopen = () => requestState('CAM');
+
+ws.onmessage = (frame) => MapStore.dispatch(
+  handleServerMessage(JSON.parse(frame.data))
+);
 
 
-module.exports = {
-  
-  event: function(rawMessage) {
-    rawMessage.msg = 'Event';
-    ws.send(JSON.stringify(rawMessage));
-  },
+export function event(rawMessage) {
+  rawMessage.msg = 'Event';
+  ws.send(JSON.stringify(rawMessage));
+};
 
-  react: function(rawMessage) {
-    rawMessage.msg = 'React';
-    ws.send(JSON.stringify(rawMessage));
-  },
-  
-  requestState: function (type, id) {
-    this.event({
-      type: 'CORE',
-      action: 'GET_STATE',
-      params: {
-        objtype: type,
-        objid: id
-      }
-    })
-  }
+export function react(rawMessage) {
+  rawMessage.msg = 'React';
+  ws.send(JSON.stringify(rawMessage));
+};
+
+export function requestState(type, id) {
+  event({
+    type: 'CORE',
+    action: 'GET_STATE',
+    params: {
+      objtype: type || '',
+      objid: id || '',
+    }
+  })
 };
