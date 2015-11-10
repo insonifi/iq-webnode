@@ -4,7 +4,7 @@
   "author": "insonifi@gmail.com",
   "description": "Web connector to iq-node",
   "scripts": {
-    "bundle": "sed -e 's/.*browser.*//' -i node_modules/ws/package.json && find node_modules/ -iname *fallback.js -exec rename .fallback.js .js {} \\; && browserify --bare webnode.js | uglifyjs -c -m --noerr > web.js"
+    "bundle": "sed -e 's/.*browser.*//' -i node_modules/ws/package.json && find node_modules/ -iname *fallback.js -exec rename .fallback.js .js {} \\; && rm -f build/* && browserify --bare webnode.js | uglifyjs -c -m --noerr > build/web.js"
   },
   "main": "./webnode",
   "repository": {
@@ -23,5 +23,10 @@
     "express",
     "iq-node",
     "ws"
-  ]
+  ],
+  "devDependencies": {
+    "file": "",
+    "path": "",
+    "webpack": ""
+  }
 }
