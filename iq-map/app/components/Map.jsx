@@ -37,8 +37,7 @@ class Map extends Component {
   componentWillReceiveProps (nextProps) {
   }
   render() {
-    let { dispatch, layerNames, layers, selected, selectorOpen,
-          factories } = this.props;
+    let { dispatch, layerNames, layers, selected } = this.props;
     let layer = layers[selected];
     let layerName = layerNames[selected];
 
@@ -55,22 +54,9 @@ class Map extends Component {
           <FitButton onClick={() => dispatch(fitLayer())} />
         </div>
         { layer ?
-          <Minimap desc={layer} frameColor={Colors.deepOrange500} />
-          : null
-        }
-        { layer ?
           <Viewport>
             <Layer desc={layer} maxZoom={20} />
           </Viewport>
-          : null
-        }
-        <Legend />
-        { layerNames.length > 0 ?
-          <SVGLayerSelector
-            src='/img/overview.svg'
-            layerNames={layerNames}
-            open={selectorOpen}
-            selectedIndex={selected} />
           : null
         }
       </div>
@@ -82,14 +68,10 @@ let selector = createSelector(
   (state) => _.pluck(state.objects.config, 'name'),
   (state) => state.objects.config,
   (state) => state.layerSelected,
-  (state) => state.selectorOpen,
-  (state) => state.factories,
-  (layerNames, layers, selected, selectorOpen, factories) => ({
+  (layerNames, layers, selected) => ({
     layerNames,
     layers,
     selected,
-    selectorOpen,
-    factories,
   })
 );
 
