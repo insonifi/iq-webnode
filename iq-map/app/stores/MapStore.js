@@ -1,11 +1,12 @@
 'use strict'
 import React from 'react';
 import _ from 'lodash';
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import createLogger from 'redux-logger';
 import mapApp from './reducers';
 import {alarm} from '../actions/MapActionCreators';
 import {requestState} from '../utils/IqNode';
+import {getState} from '../utils/getstate';
 
 //var MapDispatcher = require('../dispatcher/MapDispatcher');
 //var IqNode = require('../utils/IqNode');
@@ -16,14 +17,14 @@ import {requestState} from '../utils/IqNode';
 //var CHANGE_EVENT = 'change';
 //var CONFIG = 'config';
 //var MSG = 'msg';
-//var FRAME = 'frame';
+//var LAYER_FRAME = 'LAYER_FRAME';
 //var LAYER_POS = 'layer';
 
 //var _states = {};
 //var _mapConfig = {};
 //var _layerSelected = 0;
 //var _layerAlarmed = {};
-//var DEFAULT_FRAME_POS = {
+//var DEFAULT_LAYER_FRAME_POS = {
 //  x: 0,
 //  y: 0,
 //  w: 0,
@@ -49,8 +50,8 @@ import {requestState} from '../utils/IqNode';
 //  emitStateUpdate: function() {
 //    this.emit(MSG);
 //  },
-//  emitFrameChange: function() {
-//    this.emit(FRAME);
+//  emitLAYER_FRAMEChange: function() {
+//    this.emit(LAYER_FRAME);
 //  },
 //  emitLayerPositionChange: function() {
 //    this.emit(LAYER_POS);
@@ -80,12 +81,12 @@ import {requestState} from '../utils/IqNode';
 //    this.removeListener(CONFIG, callback);
 //  },
 //
-//  addFrameChangeListener: function(callback) {
-//    this.on(FRAME, callback);
+//  addLAYER_FRAMEChangeListener: function(callback) {
+//    this.on(LAYER_FRAME, callback);
 //  },
 //
-//  removeFrameChangeListener: function(callback) {
-//    this.removeListener(FRAME, callback);
+//  removeLAYER_FRAMEChangeListener: function(callback) {
+//    this.removeListener(LAYER_FRAME, callback);
 //  },
 //
 //  addLayerPositionChange: function(callback) {
@@ -141,8 +142,8 @@ import {requestState} from '../utils/IqNode';
 //    return _layerAlarmed;
 //  },
 //
-//  getFrame: function () {
-//    return _mapFrame;
+//  getLAYER_FRAME: function () {
+//    return _mapLAYER_FRAME;
 //  },
 //
 //  getLayerPosition: function () {
@@ -180,9 +181,9 @@ import {requestState} from '../utils/IqNode';
 //            MapStore.emitChange();
 //            break;
 //
-//        case ActionTypes.FRAME:
-//          _mapFrame = action.frame;
-//          MapStore.emitFrameChange();
+//        case ActionTypes.LAYER_FRAME:
+//          _mapLAYER_FRAME = action.LAYER_FRAME;
+//          MapStore.emitLAYER_FRAMEChange();
 //          break;
 //
 //        case ActionTypes.LAYER_GEOMETRY:
@@ -201,7 +202,7 @@ localStorage.setItem(STORE_KEY, '');
 function crossTabActions({ getState }) {
   return (next) => (action) => {
     // console.log('>>', action);
-    if (action.type.indexOf('REGISTER') === -1) {
+    if (action.type.slice(0, 5) === 'LAYER') {
       localStorage.setItem(STORE_KEY, JSON.stringify(action));
     }
     // Call the next dispatch method in the middleware chain.
@@ -215,12 +216,12 @@ function crossTabActions({ getState }) {
   };
 }
 const logger = createLogger();
-const createCrossTabStore = applyMiddleware(crossTabActions)(createStore);
+const createCrossTabStore = applyMiddleware(crossTabActions, logger)(createStore);
 const store = createCrossTabStore(mapApp);
 
 window.addEventListener('storage', (e) => {
-  if (e.key === STORE_KEY && e.newValue !== '') {
-    let action = JSON.parse(e.storageArea[STORE_KEY]);
+  if (e.key === STORE_KEY && e.newValue) {
+    let action = JSON.parse(e.newValue);
     // console.log('<<', action);
     store.dispatch(action);
     localStorage.setItem(STORE_KEY, '');
@@ -229,24 +230,6 @@ window.addEventListener('storage', (e) => {
 
 export default store;
 
-
-
 /* utilities */
-function stringToMap (stringState) {
-  return _(stringState)
-    .split('|')
-    .reduce(function (result, item) {
-      result[item] = true;
-      return result;
-    },{});
-}
-export function getObjectState(type, id) {
-  let {states, behaviours} = store.getState().objects;
-  let path = [type, id].join('.');
-  let fsmClient = _.get(states, path);
-  if (fsmClient) {
-    return stringToMap(behaviours[type].compositeState(fsmClient));
-  } else {
-    return {}
-  }
-}
+export const getObjectState = (type, id) =>
+  getState.call(store.getState().objects, type, id);
