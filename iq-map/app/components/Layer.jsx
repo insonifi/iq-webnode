@@ -221,9 +221,9 @@ class Layer extends Component {
                                                         .getBoundingClientRect();
     let l = Math.max(-left, 0)/width;
     let t = Math.max(-top, 0)/height;
-    let r = Math.max(right - window.innerWidth, 0)/width;
-    let b = Math.max(bottom - window.innerHeight, 0)/height;
-    dispatch(updateFrame({l, t, r, b}));
+    let w = window.innerWidth/width;
+    let h = window.innerHeight/height;
+    dispatch(updateFrame({l, t, w, h}));
   }
   boundedPosition(x, y) {
     let bx = x;

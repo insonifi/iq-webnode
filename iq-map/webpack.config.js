@@ -34,9 +34,9 @@ module.exports = {
   },
   devtool: 'source-map',
   plugins: [
-        new webpack.DefinePlugin({NODE_ENV: 'production'}),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.UglifyJsPlugin(),
+        // new webpack.DefinePlugin({NODE_ENV: 'production'}),
+        // new webpack.optimize.DedupePlugin(),
+        // new webpack.optimize.UglifyJsPlugin(),
         new CompressionPlugin({
             asset: "{file}",
             algorithm: "gzip",

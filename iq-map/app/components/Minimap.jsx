@@ -5,6 +5,7 @@ import Draggable from 'react-draggable'
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
 import FlatButton from 'material-ui/lib/flat-button';
+import Paper from 'material-ui/lib/paper';
 import {getObjectState} from '../stores/MapStore';
 import {updateLayerCentre} from '../actions/MapActionCreators';
 let scale = 1;
@@ -12,16 +13,8 @@ class Minimap extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      w: 0,
-      h: 0,
-      s: 0.2,
-      point: 3,
-      frame: {
-        l: 0,
-        t: 0,
-        r: 0,
-        b: 0,
-      }
+      s: 0.5,
+      r: 1,
     }
     this.sendPosition = this.sendPosition.bind(this);
     this.renderBg = this.renderBg.bind(this);
@@ -41,53 +34,54 @@ class Minimap extends Component {
   componentWillUnmountfunction() {
   }
   render() {
-    const { dispatch, frame, frameColor, layers } = this.props;
-    const m_width = this.state.w * this.state.s;
-    const m_height = this.state.h * this.state.s;
+    const { dispatch, framePosition, frameColor, layers, width, height } = this.props;
+    const {l, t, w, h} = framePosition;
+    const {r} = this.state;
+    // const m_width = this.props.w * this.state.s;
+    // const m_height = this.props.h * this.state.s;
     const _frameColor = [
       parseInt(frameColor.slice(1,3), 16),
       parseInt(frameColor.slice(3,5), 16),
       parseInt(frameColor.slice(5,7), 16)
     ];
     const minimapStyle = {
-      width: m_width,
-      height: m_height,
+      width,
+      height: width * r,
     };
     const frameStyle = {
-      left: m_width * frame.l,
-      top: m_height * frame.t,
-      right: m_width * frame.r,
-      bottom: m_height * frame.b,
+      left: width * l,
+      top: width * r * t,
+      width: width * w,
+      height: width * r * h,
       background: `rgba($, 0.1)`.replace('$', _frameColor),
       borderColor: frameColor,
     };
-    return <Draggable axis='both' start={{x: 20, y: 10}} handle='.handle'>
-      <div className='minimap dropshadow' style={minimapStyle}>
-        <div className='minimap__handle handle' />
-        <canvas className='minimap__bg' ref='bg' />
-        <canvas className='minimap__layer' ref='layer' onClick={this.sendPosition} />
-        <div className='minimap__frame' style={frameStyle} ref='frame' />
-      </div>
-    </Draggable>
+      // <div className='minimap__handle handle' />
+    return <div className='minimap' style={minimapStyle}>
+      <canvas className='minimap__bg' ref='bg' />
+      <canvas className='minimap__layer' ref='layer' onClick={this.sendPosition} />
+      <div className='minimap__frame' style={frameStyle} />
+    </div>
   }
   sendPosition(e) {
     let {clientX, clientY} = e;
-    let {dispatch} = this.props;
-    let {w, h, s} = this.state;
+    let {dispatch, width} = this.props;
+    let {s, r} = this.state;
     let {left, top} = ReactDOM.findDOMNode(this).getBoundingClientRect();
-    let x = (clientX - left) / (w * s);
-    let y = (clientY - top) / (h * s);
+    let x = (clientX - left) / (width);
+    let y = (clientY - top) / (width * r);
     dispatch(updateLayerCentre({x, y,}));
   }
 
   renderBg(src) {
+    let {width} = this.props;
     let bgcanvas = this.refs.bg;
     let image = document.createElement('img');
     image.addEventListener('load', (function () {
-      let scale = this.state.s
+      let scale = width/image.width;
       this.setState({
-        w: image.width,
-        h: image.height,
+        s: scale,
+        r: image.height/image.width,
       });
       bgcanvas.width = image.width * scale;
       bgcanvas.height = image.height * scale;
@@ -104,13 +98,13 @@ class Minimap extends Component {
   }
   renderLayer() {
     let lcanvas = this.refs.layer;
-    let {states} = this.props;
+    let {states, width, point} = this.props;
     let offscreen = document.createElement('canvas');
-    let {w, h, s, point} = this.state
-    offscreen.width = w;
-    offscreen.height = h;
-    lcanvas.width = w * s;
-    lcanvas.height = h * s;
+    let {r, s} = this.state
+    offscreen.width = width;
+    offscreen.height = width * r;
+    lcanvas.width = width;
+    lcanvas.height = width * r;
     let offctx = offscreen.getContext('2d');
     offctx.save();
     offctx.scale(s, s);
@@ -129,8 +123,8 @@ class Minimap extends Component {
 const selector = createSelector(
   (state) => state.framePosition,
   (state) => state.objects.states,
-  (frame, states) => ({
-      frame,
+  (framePosition, states) => ({
+      framePosition,
       states,
     })
 );

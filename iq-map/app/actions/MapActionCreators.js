@@ -9,13 +9,13 @@ export function selectLayer(index) {
 };
 export function alarm(indices) {
   return {
-    type: ActionTypes.LAYERS_ALARMED,
+    type: ActionTypes.LAYER_ALARMED,
     indices
   };
 };
 export function updateFrame(frame) {
   return {
-    type: ActionTypes.FRAME,
+    type: ActionTypes.LAYER_FRAME,
     frame,
   };
 };

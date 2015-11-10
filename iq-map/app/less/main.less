@@ -57,8 +57,7 @@ html, body {
   }
 }
 .legend {
-  position: fixed;
-  z-index: 2;
+  display: inline-block;
   background-color: white;
   &__handle {
     z-index: 2;
@@ -78,15 +77,13 @@ html, body {
 }
 .overview {
   display: inline-block;
-  position: fixed;
-  z-index: 1;
   background: white;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: 0.5s;
-  transition-property: transform;
-  transition-timing-function: ease-in-out;
+  // top: 50%;
+  // transform: translateY(-50%);
+  // transition: 0.5s;
+  // transition-property: transform;
+  // transition-timing-function: ease-in-out;
   &__image {
     padding: 30px;
   }
@@ -109,19 +106,18 @@ html, body {
   box-shadow: black 0 0 20px -5px;
 }
 .minimap {
-  position: fixed;
-//  height: 120px;
-  z-index: 2;
+  display: inline-block;
+  position: absolute;
   &__bg {
     height: inherit;
     width: inherit;
-    left: 0;
     position: absolute;
+    // left: 0;
   }
   &__layer {
     height: inherit;
     width: inherit;
-    left: 0;
+    // left: 0;
     position: absolute;
     z-index: 3;
   }

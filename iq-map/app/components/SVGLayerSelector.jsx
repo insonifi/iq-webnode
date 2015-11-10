@@ -64,7 +64,7 @@ class SVGLayerSelector extends Component {
     let {svg} = this.state;
     let {layerNames, dispatch, selected, open, alarmedLayers} = this.props;
     let style = {
-      transform: open ? 'translate(0,-50%)' : 'translate(100%,-50%)',
+      // transform: open ? 'translate(0,-50%)' : 'translate(100%,-50%)',
     };
     let titleStyle = {
       transform: 'translate(-67%,-50%) rotateZ(-90deg)',
@@ -74,9 +74,9 @@ class SVGLayerSelector extends Component {
     let getSVG = () => ({
         __html: svg
       });
+      // <RaisedButton style={titleStyle} label='Overview' onClick={() => dispatch(toggleSelector())}/>
     return <div className='overview' style={style}>
-      <RaisedButton style={titleStyle} label='Overview' onClick={() => dispatch(toggleSelector())}/>
-      <Paper zDepth={3}>
+      <Paper zDepth={1}>
         <span ref='container' dangerouslySetInnerHTML={getSVG()} className="overview__image"/>
       </Paper>
     </div>
