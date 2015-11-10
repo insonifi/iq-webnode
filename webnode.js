@@ -2,24 +2,28 @@ var http = require('http'),
   fs = require('fs'),
   os = require('os'),
   dns = require('dns'),
+  path = require('path'),
   iq = require('iq-node'),
-  config = JSON.parse(fs.readFileSync(__dirname + '/config.json'));
+  config = JSON.parse(fs.readFileSync('./config.json'));
   server = http.createServer(),
   WebSocketServer = require('ws').Server,
   wss = new WebSocketServer({port: 58888}),
   express = require('express'),
-  app = express();
+  app = express(),
+  ROOT = path.resolve('./iq-map');
 
+console.log(ROOT);
 app.get('*.js', function (req, res, next) {
 //  req.url = req.url + '.gz';
   res.set('Content-Encoding', 'gzip');
   next();
 });
-  
-app.use(express.static(__dirname + '/iq-map'));
+
+app.use(express.static(ROOT));
 
 app.use(function (req, res, next){
-  res.status(404).send('Sorry cant find that!');
+  // res.status(404).send('Sorry cant find that!');
+  res.status(200).sendFile('./index.html', {root: ROOT});
 });
 
 app.listen(config.httpPort || 8000);
