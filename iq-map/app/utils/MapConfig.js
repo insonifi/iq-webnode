@@ -9,7 +9,7 @@ const csvProcessor = new Worker(blobURL);
 export default (file) => {
   let p = new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
-    const url = `${window.location}/${file}`;
+    const url = `${window.location.origin}/${file}`;
     const ASYNC = true;
     xhr.open('GET', url, ASYNC);
     xhr.onreadystatechange = () => {
