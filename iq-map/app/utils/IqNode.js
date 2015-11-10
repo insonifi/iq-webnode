@@ -6,8 +6,8 @@ const ws = new WebSocket(`ws://${window.location.hostname}:58888`);
 
 ws.onopen = () => requestState('CAM');
 
-ws.onmessage = (frame) => MapStore.dispatch(
-  handleServerMessage(JSON.parse(frame.data))
+ws.onmessage = (LAYER_FRAME) => MapStore.dispatch(
+  handleServerMessage(JSON.parse(LAYER_FRAME.data))
 );
 
 
