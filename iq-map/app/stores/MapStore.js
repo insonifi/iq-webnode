@@ -2,17 +2,18 @@
 import React from 'react';
 import _ from 'lodash';
 import { createStore, applyMiddleware } from 'redux';
-// import createLogger from 'redux-logger';
+import createLogger from 'redux-logger';
 import mapApp from './reducers';
 import {alarm} from '../actions/MapActionCreators';
 import {requestState} from '../utils/IqNode';
-import {getState} from '../utils/getstate';
+import {getState} from '../utils/misc';
 
 const STORE_KEY = 'storeAction';
+let lastAction = {};
 localStorage.setItem(STORE_KEY, '');
 function crossTabActions({ getState }) {
   return (next) => (action) => {
-    if (action.type.slice(0, 5) === 'LAYER') {
+    if (lastAction !== action && action.type.slice(0, 5) === 'LAYER') {
       localStorage.setItem(STORE_KEY, JSON.stringify(action));
     }
     // Call the next dispatch method in the middleware chain.
@@ -25,16 +26,17 @@ function crossTabActions({ getState }) {
     return returnValue;
   };
 }
-// const logger = createLogger();
+const logger = createLogger();
 const createCrossTabStore = applyMiddleware(crossTabActions)(createStore);
 const store = createCrossTabStore(mapApp);
 
 window.addEventListener('storage', (e) => {
   if (e.key === STORE_KEY && e.newValue) {
     let action = JSON.parse(e.newValue);
-    // console.log('<<', action);
-    store.dispatch(action);
-    localStorage.setItem(STORE_KEY, '');
+    if (lastAction !== action) {
+      store.dispatch(action);
+      localStorage.setItem(STORE_KEY, '');
+    }
   }
 }, false);
 
