@@ -1,4 +1,5 @@
 var CompressionPlugin = require("compression-webpack-plugin");
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 module.exports = {
   entry: {
@@ -6,8 +7,8 @@ module.exports = {
   },
   module: {
     loaders: [
-      { test: /\.css$/, loader: 'style!css' },
-      { test: /\.less$/, loader: 'style!css!less' },
+      { test: /\.css$/, loader: ('style!css') },
+      { test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css!less') },
       {
         test: /\.(jsx?|es6)$/,
         loader: 'babel',
@@ -34,6 +35,7 @@ module.exports = {
   },
   devtool: 'source-map',
   plugins: [
+        new ExtractTextPlugin('[name].css'),
         new webpack.DefinePlugin({NODE_ENV: 'production'}),
         new webpack.optimize.DedupePlugin(),
         new webpack.optimize.UglifyJsPlugin(),

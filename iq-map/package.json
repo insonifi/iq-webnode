@@ -17,6 +17,7 @@
     "babel-runtime": "",
     "compression-webpack-plugin": "",
     "css-loader": "",
+    "extract-text-webpack-plugin": "",
     "file-loader": "",
     "image-webpack-loader": "",
     "imagemin": "",
