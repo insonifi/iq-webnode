@@ -1,8 +1,9 @@
 'use strict'
+import _ from 'lodash';
 import React, {PropTypes, Component} from 'react';
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
-import RaisedButton from 'material-ui/lib/raised-button';
+// import SelectField from 'material-ui/lib/select-field';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 import Colors from 'material-ui/lib/styles/colors';
 import Theme from '../utils/Theme';
@@ -14,9 +15,8 @@ import Viewport from './Viewport';
 import Minimap from './Minimap';
 import FitButton from './FitButton';
 
-import _ from 'lodash';
 import MapStore from '../stores/MapStore';
-import {toggleSelector, fitLayer} from '../actions/MapActionCreators';
+import {fitLayer, selectLayer} from '../actions/MapActionCreators';
 import {requestState} from '../utils/IqNode';
 
 class Map extends Component {
@@ -39,28 +39,23 @@ class Map extends Component {
   render() {
     let { dispatch, layerNames, layers, selected } = this.props;
     let layer = layers[selected];
-    let layerName = layerNames[selected];
-
-    return (
-      <div>
-        { layerName ?
-          <div className='layer__title'>
-            <RaisedButton onClick={() => dispatch(toggleSelector())}
-            label={layerName}/>
-          </div>
-          : null
-        }
-        <div className='layer__fit'>
-          <FitButton onClick={() => dispatch(fitLayer())} />
-        </div>
-        { layer ?
-          <Viewport>
-            <Layer desc={layer} maxZoom={20} />
-          </Viewport>
-          : null
-        }
+    let menuItems = _.map(layerNames, (val, idx) => ({payload: idx, text: val}));
+//       <div className='layer__title'>
+//         <SelectField menuItems={menuItems}
+//           onChange={(e, idx) => dispatch(selectLayer(idx))}
+//           selectedIndex={selected}/>
+//       </div>
+    let layout = layer ? <div>
+      <div className='layer__fit'>
+        <FitButton onClick={() => dispatch(fitLayer())} />
       </div>
-    )
+      <Viewport>
+        <Layer desc={layer} maxZoom={20} />
+      </Viewport>
+    </div>
+    : null;
+
+    return layout
   }
 }
 
