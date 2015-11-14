@@ -45,13 +45,13 @@ class Camera extends Component {
   componentWillUnmount() {
   }
   render() {
-    let {x, y, id, name, state} = this.props;
+    let {x, y, id, name, state, collapse} = this.props;
     let style = {
       position: 'absolute',
       top: Math.round(y),
       left: Math.round(x),
     };
-    let classnames = cx('icon camera', state);
+    let classnames = cx('icon camera', state, {collapse});
     let actions = this.actions(id);
     let component = (
       <div>

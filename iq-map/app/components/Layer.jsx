@@ -6,6 +6,7 @@ import {createSelector} from 'reselect';
 import _ from 'lodash';
 import {getObjectState} from '../stores/MapStore';
 import {updateLayer, updateFrame, fitLayer} from '../actions/MapActionCreators';
+import {boundedPosition} from '../utils/misc';
 
 /**
  * Load object components
@@ -14,6 +15,7 @@ require('../components/Camera');
 require('../components/Sensor');
 
 const REFRESH_LIMIT = 100;
+const COLLAPSE_DIST = 40;
 
 class Layer extends Component {
   constructor (props) {
@@ -23,7 +25,6 @@ class Layer extends Component {
     this.drag = this.drag.bind(this);
     this.zoom = this.zoom.bind(this);
     this.getSize = this.getSize.bind(this);
-    this.boundedPosition = this.boundedPosition.bind(this);
     this.notifyMinimap = _.throttle(this.notifyMinimap.bind(this), REFRESH_LIMIT);
     this.dragPos = {
       x: 0,
@@ -39,8 +40,6 @@ class Layer extends Component {
   componentWillUnmount() {
   }
   componentWillReceiveProps(nextProps) {
-    // let {x, y, w, h, s} = nextProps;
-    // this.setState({x, y, w, h, s});
   }
   componentDidUpdate() {
     this.notifyMinimap();
@@ -66,25 +65,45 @@ class Layer extends Component {
 
     let LayerBase = (<div className='layer'>
       {
-        _config.map(function (obj) {
-          let {type, id} = obj;
-          let o_x = obj.x * s;
-          let o_y = obj.y * s;
-          let pos_x = o_x + x;
-          let pos_y = o_y + y;
-          if (filter[type] && (0 < pos_x && pos_x < window.innerWidth) &&
-              (0 < pos_y && pos_y < window.innerHeight)) {
-            return factories[obj.type]({
-              id,
-              key: type + id,
-              x: o_x,
-              y: o_y,
-              state: getObjectState(type, id),
-            });
-          } else {
-            return null;
-          }
-        }).value()
+        _config
+          .map((o) => _.assign({}, o, {
+            x: o.x * s,
+            y: o.y * s,
+          }))
+          .filter((o) => {
+            let posX = o.x + x;
+            let posY = o.y + y;
+            return filter[o.type] &&
+              (0 < posX && posX < window.innerWidth) &&
+              (0 < posY && posY < window.innerHeight)
+          })
+          .map((o, idx, array) => {
+            let i = array.length;
+            let item, dx, dy, dist;
+            for (;--i;) {
+              if (i === idx) {
+                continue;
+              }
+              item = array[i];
+              dx = item.x - o.x;
+              dy = item.y - o.y;
+              dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+              if (COLLAPSE_DIST > dist) {
+                o.collapse = true;
+                break;
+              }
+            }
+            return o;
+          })
+          .map((o) => factories[o.type]({
+            id: o.id,
+            key: o.type + o.id,
+            x: o.x,
+            y: o.y,
+            state: getObjectState(o.type, o.id),
+            collapse: o.collapse,
+          }))
+          .value()
       }
       {cloneElement(<img src={desc.bg} className='layer__bg' />)}
     </div>);
@@ -124,7 +143,7 @@ class Layer extends Component {
     let dx = x + clientX - x0;
     let dy = y + clientY - y0;
     // Check bounds
-    let {bx, by} = this.boundedPosition(dx, dy);
+    let {bx, by} = boundedPosition.call(this.props, dx, dy);
     this.dragPos = {
       x0: clientX,
       y0: clientY,
@@ -224,18 +243,6 @@ class Layer extends Component {
     let w = window.innerWidth/width;
     let h = window.innerHeight/height;
     dispatch(updateFrame({l, t, w, h}));
-  }
-  boundedPosition(x, y) {
-    let bx = x;
-    let by = y;
-    var {w, h, s} = this.props;
-    var scaledWidth = w * s;
-    var scaledHeight = h * s;
-    bx = Math.min(bx, 0);
-    by = Math.min(by, 0);
-    bx = Math.max(bx, window.innerWidth - scaledWidth);
-    by = Math.max(by, window.innerHeight - scaledHeight);
-    return {bx, by};
   }
 };
 
