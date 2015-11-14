@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import _ from 'lodash';
 import ActionTypes from '../constants/MapConstants';
-import {getState} from '../utils/getstate';
+import {getState, boundedPosition} from '../utils/misc';
 
 function layerSelected (state=0, action) {
   switch (action.type) {
@@ -42,9 +42,12 @@ function layerGeometry (state=DEFAULT_LAYER_POS, action) {
       return _.assign({}, state, action.position);
     case ActionTypes.LAYER_POINT:
       let {point} = action;
+      let nx = -point.x * w * s + window.innerWidth / 2;
+      let ny = -point.y * h * s + window.innerHeight / 2;
+      let {bx, by} = boundedPosition.call(state, nx, ny);
       return _.assign({}, state, {
-        x: point.x / s - w / 2,
-        y: point.y / s - h / 2,
+        x: bx,
+        y: by,
       });
     case ActionTypes.LAYER_FIT:
       let s = Math.max(window.innerWidth / w, window.innerHeight / h);

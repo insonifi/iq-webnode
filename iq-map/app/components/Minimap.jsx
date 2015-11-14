@@ -34,7 +34,8 @@ class Minimap extends Component {
   componentWillUnmountfunction() {
   }
   render() {
-    const { dispatch, framePosition, frameColor, layers, width, height } = this.props;
+    const { dispatch, framePosition, frameColor,
+            layers, width, height, showObj} = this.props;
     const {l, t, w, h} = framePosition;
     const {r} = this.state;
     // const m_width = this.props.w * this.state.s;
@@ -58,8 +59,8 @@ class Minimap extends Component {
     };
       // <div className='minimap__handle handle' />
     return <div className='minimap' style={minimapStyle}>
-      <canvas className='minimap__bg' ref='bg' />
-      <canvas className='minimap__layer' ref='layer' onClick={this.sendPosition} />
+      <canvas className='minimap__bg' ref='bg' onClick={this.sendPosition} />
+      { showObj ? <canvas className='minimap__layer'  ref='layer' /> : null}
       <div className='minimap__frame' style={frameStyle} />
     </div>
   }
@@ -97,26 +98,27 @@ class Minimap extends Component {
     image.src = src;
   }
   renderLayer() {
-    let lcanvas = this.refs.layer;
-    let {states, width, point} = this.props;
-    let offscreen = document.createElement('canvas');
-    let {r, s} = this.state
-    offscreen.width = width;
-    offscreen.height = width * r;
-    lcanvas.width = width;
-    lcanvas.height = width * r;
-    let offctx = offscreen.getContext('2d');
-    offctx.save();
-    offctx.scale(s, s);
-    _.forEach(this.props.desc.config, function ({type, id, x,y }) {
-      let state = getObjectState(type, id);
-
-      offctx.fillStyle = state.alarmed ? 'red' : 'deepskyblue';
-      offctx.fillRect(x, y, point / s, point / s);
-    });
-    offctx.restore();
-    let lctx = lcanvas.getContext('2d');
-    lctx.drawImage(offscreen, 0, 0);
+    if (this.props.showObj) {
+      let lcanvas = this.refs.layer;
+      let {states, width, point} = this.props;
+      let offscreen = document.createElement('canvas');
+      let {r, s} = this.state
+      offscreen.width = width;
+      offscreen.height = width * r;
+      lcanvas.width = width;
+      lcanvas.height = width * r;
+      let offctx = offscreen.getContext('2d');
+      offctx.save();
+      offctx.scale(s, s);
+      _.forEach(this.props.desc.config, function ({type, id, x,y }) {
+        let state = getObjectState(type, id);
+        offctx.fillStyle = state.alarmed ? 'red' : 'deepskyblue';
+        offctx.fillRect(x, y, point / s, point / s);
+      });
+      offctx.restore();
+      let lctx = lcanvas.getContext('2d');
+      lctx.drawImage(offscreen, 0, 0);
+    }
   }
 };
 
