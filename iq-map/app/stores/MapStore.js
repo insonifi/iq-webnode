@@ -10,10 +10,9 @@ import {getState} from '../utils/misc';
 
 const STORE_KEY = 'storeAction';
 let lastAction = {};
-localStorage.setItem(STORE_KEY, '');
 function crossTabActions({ getState }) {
   return (next) => (action) => {
-    if (lastAction !== action && action.type.slice(0, 5) === 'LAYER') {
+    if (action.type.slice(0, 5) === 'LAYER') {
       localStorage.setItem(STORE_KEY, JSON.stringify(action));
     }
     // Call the next dispatch method in the middleware chain.
@@ -33,10 +32,7 @@ const store = createCrossTabStore(mapApp);
 window.addEventListener('storage', (e) => {
   if (e.key === STORE_KEY && e.newValue) {
     let action = JSON.parse(e.newValue);
-    if (lastAction !== action) {
-      store.dispatch(action);
-      localStorage.setItem(STORE_KEY, '');
-    }
+    store.dispatch(action);
   }
 }, false);
 
