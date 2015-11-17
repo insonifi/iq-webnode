@@ -98,6 +98,7 @@ class Layer extends Component {
           .map((o) => factories[o.type]({
             id: o.id,
             key: o.type + o.id,
+            name: o.name,
             x: o.x,
             y: o.y,
             state: getObjectState(o.type, o.id),
