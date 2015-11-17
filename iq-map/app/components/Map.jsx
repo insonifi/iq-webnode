@@ -3,7 +3,6 @@ import _ from 'lodash';
 import React, {PropTypes, Component} from 'react';
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
-// import SelectField from 'material-ui/lib/select-field';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 import Colors from 'material-ui/lib/styles/colors';
 import Theme from '../utils/Theme';
@@ -19,13 +18,7 @@ import MapStore from '../stores/MapStore';
 import {fitLayer, selectLayer} from '../actions/MapActionCreators';
 import {requestState} from '../utils/IqNode';
 
-class Map extends Component {
-  // getChildContext: function () {
-  //   return {
-  //     muiTheme: ThemeManager.getMuiTheme(Theme)
-  //   }
-  // },
-  constructor(props) {
+class Map extends Component {constructor(props) {
     super(props);
   }
   componentWillMount() {
@@ -40,17 +33,13 @@ class Map extends Component {
     let { dispatch, layerNames, layers, selected } = this.props;
     let layer = layers[selected];
     let menuItems = _.map(layerNames, (val, idx) => ({payload: idx, text: val}));
-//       <div className='layer__title'>
-//         <SelectField menuItems={menuItems}
-//           onChange={(e, idx) => dispatch(selectLayer(idx))}
-//           selectedIndex={selected}/>
-//       </div>
     let layout = layer ? <div>
       <div className='layer__fit'>
         <FitButton onClick={() => dispatch(fitLayer())} />
       </div>
       <Viewport>
-        <Layer desc={layer} maxZoom={20} />
+        <Layer desc={layer} maxZoom={20}/>
+        <Legend draggable={true}/>
       </Viewport>
     </div>
     : null;
