@@ -1,4 +1,4 @@
-function stringToMap (stringState) {
+export function stringToMap (stringState) {
   return _(stringState)
     .split('|')
     .reduce(function (result, item) {
