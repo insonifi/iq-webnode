@@ -2,9 +2,9 @@
 1,CAM,Camera 1,120,200
 2,CAM,Camera 2,634,332
 3,CAM,Camera 3,322,423
-4,CAM,Camera 3,332,423
-5,CAM,Camera 3,322,413
-6,CAM,Camera 3,332,433
+4,CAM,Camera 4,332,423
+5,CAM,Camera 5,322,413
+6,CAM,Camera 6,332,433
 1,GRAY,Sensor 1,250,322
 2,GRAY,Sensor 2,722,300
 2,LAYER,Layer Two,http://upload.wikimedia.org/wikipedia/commons/e/e2/MessierStarChart.svg
