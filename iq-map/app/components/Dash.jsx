@@ -6,12 +6,17 @@ import {createSelector} from 'reselect';
 import RaisedButton from 'material-ui/lib/raised-button';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 import Colors from 'material-ui/lib/styles/colors';
+import Tabs from 'material-ui/lib/tabs/tabs';
+import Tab from 'material-ui/lib/tabs/tab';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 import Theme from '../utils/Theme';
 
 import SVGLayerSelector from './SVGLayerSelector';
 import Legend from './Legend'
+import StateList from './StateList'
 import Minimap from './Minimap';
 
+injectTapEventPlugin();
 
 class Dash extends Component {
   constructor(props) {
@@ -31,22 +36,26 @@ class Dash extends Component {
     let color = Colors.deepOrange500;
 
     return (
-      <div>
-        <div>
-          { layerNames.length > 0 ?
-            <SVGLayerSelector
-              src='/img/overview.svg'
-              layerNames={layerNames}
-              selectedIndex={selected} />
-            : null
-          }
-          { layer ?
-            <Minimap desc={layer} frameColor={color} width={400} point={5}/>
-            : null
-          }
-        </div>
-        <Legend />
-      </div>
+      <Tabs>
+        <Tab label='Overview'>
+          <div>
+            { layerNames.length > 0 ?
+              <SVGLayerSelector
+                src='/img/overview.svg'
+                layerNames={layerNames}
+                selectedIndex={selected} />
+              : null
+            }
+            { layer ?
+              <Minimap desc={layer} frameColor={color} width={400} point={5}/>
+              : null
+            }
+          </div>
+        </Tab>
+        <Tab label='Status'>
+          <StateList />
+        </Tab>
+      </Tabs>
     )
   }
 }
