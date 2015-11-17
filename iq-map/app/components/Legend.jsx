@@ -1,8 +1,8 @@
 'use strict'
 import React, {Component, cloneElement} from 'react';
-import Draggable from 'react-draggable'
 import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
+import Draggable from 'react-draggable';
 import {createSelector} from 'reselect';
 import _ from 'lodash';
 import Toggle from 'material-ui/lib/toggle';
@@ -16,7 +16,7 @@ class Legend extends Component {
     this.toggleFilter = this.toggleFilter.bind(this);
   }
   render() {
-    let {factories, filter, dispatch} = this.props;
+    let {factories, filter, dispatch, draggable} = this.props;
     let items = _.map(factories, (factory, key) => {
       let toggleFilter = this.toggleFilter.bind(null, key);
       let toggleSwitch =
@@ -24,13 +24,20 @@ class Legend extends Component {
 
       return  <ListItem key={key} primaryText={key} rightToggle={toggleSwitch}/>;
     });
-
-    return <div className='legend' >
+    let LegendList = <div className='legend' >
       <div className='legend__handle handle' />
         <List>
-          {items}
-        </List>
+        {items}
+      </List>
     </div>
+
+    if (draggable) {
+      return <Draggable bounds='parent' start={{x: 20, y: 200}}>
+        {LegendList}
+      </Draggable>;
+    } else {
+      return {LegendList};
+    }
   }
   toggleFilter(key) {
     let {filter, dispatch} = this.props;
