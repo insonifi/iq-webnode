@@ -37,27 +37,19 @@ class SVGLayerSelector extends Component {
     if (prevProps.selected !== this.props.selected) {
       {
         let oSelected = prevProps.selected;
-        this.state.selectors[oSelected]
-          .transition().attr({
-            'fill-opacity': INACTIVE
-          })
+        this.state.selectors.get(oSelected)
+          .classed('layer__item--selected', false);
       }
       {
         let nSelected = this.props.selected;
-        this.state.selectors[nSelected]
-          .transition().attr({
-            'fill-opacity': ACTIVE
-          })
+        this.state.selectors.get(nSelected)
+          .classed('layer__item--selected', true);
       }
     }
     if (prevProps.alarmedLayers !== this.props.alarmedLayers) {
       let {alarmedLayers} = this.props;
-      _(this.state.selectors).forEach((function (n, key) {
-        this.state.selectors[key]
-          .transition().attr({
-            fill: alarmedLayers[key] ? ALARMED : INACTIVE,
-          })
-      }).bind(this)).value();
+      this.state.selectors.forEach((selector, key) =>
+        selector.classed('layer__item--alarmed', alarmedLayers.has(key)));
     }
   }
   render() {
@@ -76,55 +68,47 @@ class SVGLayerSelector extends Component {
       });
       // <RaisedButton style={titleStyle} label='Overview' onClick={() => dispatch(toggleSelector())}/>
     return <div className='overview' style={style}>
-      <Paper zDepth={1}>
+      <div zDepth={1}>
         <span ref='container' dangerouslySetInnerHTML={getSVG()} className="overview__image"/>
-      </Paper>
+      </div>
+      <div>{JSON.stringify(alarmedLayers)}</div>
     </div>
   }
   init() {
     let svg = this.refs.container.querySelector('svg');
     let {layerNames, selected} = this.props;
     let {mouseIn, mouseOut, onClick} = this;
-    let selectors = _(svg.querySelectorAll('[layer]')).reduce((accum, s) => {
-      accum[s.getAttribute('layer')] = d3.select(s);
-      return accum;
-    }, {});
-    _(layerNames).forEach((n, key) => {
-      let selector = selectors[key];
-      selector
-        .attr({
-          'fill-opacity': INACTIVE,
-          style: 'pointer-events: all',
-          stroke: HOVER,
-          'stroke-width': 2,
-          'stroke-opacity': 0
-        })
-        .on('mouseover', mouseIn.bind(null, key))
-        .on('mouseout', mouseOut.bind(null, key))
-        .on('click', onClick.bind(null, key))
-        .selectAll('*')
-          .attr({style: ''});
-    }).value();
+    let selectors =  new Map();
+    d3.select(svg).selectAll('[layer]')
+      .attr('style', null)
+      .classed('layer__item', true)
+      .each(function () {
+        const d3selected = d3.select(this);
+        const layerKey = parseInt(d3selected.attr('layer'));
+        selectors.set(layerKey, d3selected);
+      })
+      .selectAll('*').attr('style', null)
+    _(layerNames).forEach((n, key) => 
+      selectors.get(key)
+        // .on('mouseover', mouseIn.bind(null, key))
+        // .on('mouseout', mouseOut.bind(null, key))
+        .on('click', onClick.bind(null, key)));
     this.setState({
       selectors
     });
-    selectors[selected]
-      .attr({
-        'fill-opacity': ACTIVE
-      });
+    selectors.get(selected)
+      .classed('layer__item--selected', true);
   }
 
   mouseIn(key) {
-    let selector = this.state.selectors[key];
-    selector
+    this.state.selectors(key)
       .transition().attr({
         'stroke-opacity': 1
       })
   }
 
   mouseOut(key) {
-    let selector = this.state.selectors[key];
-    selector
+    this.state.selectors(key)
       .transition().attr({
         'stroke-opacity': 0
       })
@@ -132,13 +116,12 @@ class SVGLayerSelector extends Component {
   load() {
     let {src} = this.props;
     let xhr = new XMLHttpRequest();
-    let _this = this;
     xhr.addEventListener('readystatechange', () => {
       if (xhr.readyState === 4) {
-        _this.setState({
+        this.setState({
           svg: xhr.responseText
         })
-        _this.init();
+        this.init();
       }
     });
     xhr.open('GET', src);
