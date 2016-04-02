@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
 import _ from 'lodash';
+import Obj from './Object';
 import {getObjectState} from '../stores/MapStore';
 import {updateLayer, updateFrame, fitLayer} from '../actions/MapActionCreators';
 import {boundedPosition} from '../utils/misc';
@@ -11,12 +12,8 @@ import {boundedPosition} from '../utils/misc';
 /**
  * Load object components
  * */
-require('../components/Camera');
-require('../components/Sensor');
-
-const REFRESH_LIMIT = 100;
-const COLLAPSE_DIST = 40;
-
+// require('../components/Camera');
+// require('../components/Sensor');
 class Layer extends Component {
   constructor (props) {
     super(props);
@@ -25,7 +22,7 @@ class Layer extends Component {
     this.drag = this.drag.bind(this);
     this.zoom = this.zoom.bind(this);
     this.getSize = this.getSize.bind(this);
-    this.notifyMinimap = _.throttle(this.notifyMinimap.bind(this), REFRESH_LIMIT);
+    this.notifyMinimap = _.throttle(this.notifyMinimap.bind(this), props.notifyLimit);
     this.dragPos = {
       x: 0,
       y: 0,
@@ -35,22 +32,34 @@ class Layer extends Component {
 
   }
   componentDidMount() {
-    this.getSize();
   }
   componentWillUnmount() {
   }
   componentWillReceiveProps(nextProps) {
+    if (nextProps.desc.bg !== this.props.desc.bg) {
+      this.getSize(nextProps.desc.bg);
+    }
+    if (this.props.x !== nextProps.x ||
+        this.props.y !== nextProps.y ||
+        this.props.w !== nextProps.w ||
+        this.props.h !== nextProps.h ||
+        this.props.s !== nextProps.s) {
+
+      this.notifyMinimap();
+    }
+  }
+  shouldComponentUpdate (nextProps, nextState) {
+    return Math.trunc(this.props.x + this.props.y) !== Math.trunc(nextProps.x + nextProps.y)
+     || this.props.desc !== nextProps.desc;
   }
   componentDidUpdate() {
-    this.notifyMinimap();
   }
   render() {
-    let desc = this.props.desc || {bg: '', config: []};
-    let _config = _(desc.config);
-    let {factories, filter, states, dispatch} = this.props;
-    let {x, y, w, h, s} = this.props;
-    let {scrollX, scrollY} = window;
-    let layerStyle = {
+    const {desc, filter} = this.props;
+    const _config = _(desc.config);
+    const {x, y, w, h, s, collapseDist} = this.props;
+//    let {scrollX, scrollY} = window;
+    const layerStyle = {
       left: Math.round(x),
       top: Math.round(y),
       width: w * s,
@@ -63,7 +72,7 @@ class Layer extends Component {
     //   transform: `translate(-50%, -50%) scale(${s})`,
     // };
 
-    let LayerBase = (<div className='layer'>
+    const LayerBase = (<div className='layer'>
       {
         _config
           .map((o) => _.assign({}, o, {
@@ -88,22 +97,16 @@ class Layer extends Component {
               dx = item.x - o.x;
               dy = item.y - o.y;
               dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-              if (COLLAPSE_DIST > dist) {
+              if (collapseDist > dist) {
                 o.collapse = true;
                 break;
               }
             }
             return o;
           })
-          .map((o) => factories[o.type]({
-            id: o.id,
-            key: o.type + o.id,
-            name: o.name,
-            x: o.x,
-            y: o.y,
-            state: getObjectState(o.type, o.id),
-            collapse: o.collapse,
-          }))
+          .map((o) => <Obj id={o.id} key={o.type + o.id} name={o.name}
+            x={o.x} y={o.y} state={getObjectState(o.type, o.id)}
+            type={o.type} collapse={o.collapse} />)
           .value()
       }
       {cloneElement(<img src={desc.bg} className='layer__bg' />)}
@@ -137,25 +140,25 @@ class Layer extends Component {
       this.stopDrag(e);
       return false;
     }
-    let {x, y} = this.props;
+    let {x, y, w, h, s} = this.props;
     let {dispatch} = this.props;
     let {clientX, clientY} = e;
     let {x0, y0} = this.dragPos;
     let dx = x + clientX - x0;
     let dy = y + clientY - y0;
     // Check bounds
-    let {bx, by} = boundedPosition.call(this.props, dx, dy);
     this.dragPos = {
       x0: clientX,
       y0: clientY,
     };
-    // this.setState({
-    //   x: bx,
-    //   y: by,
-    // });
     // window.scrollBy(-dx, -dy);
-    // this.notifyMinimap();
-    dispatch(updateLayer({x: bx, y: by}));
+    dispatch(updateLayer({
+      x: dx,
+      y: dy,
+      w,
+      h,
+      s
+    }));
   }
   zoom(e) {
     e.preventDefault();
@@ -170,9 +173,11 @@ class Layer extends Component {
     let dscale = oscale - scale;
     let {width, height} = e.currentTarget.getBoundingClientRect();
     let {clientX, clientY} = e;
-    let {scrollX, scrollY} = window;
-    let ox = (clientX - x + scrollX) / width;
-    let oy = (clientY - y + scrollY) / height;
+//     let {scrollX, scrollY} = window;
+//     let ox = (clientX - x + scrollX) / width;
+//     let oy = (clientY - y + scrollY) / height;
+    let ox = (clientX - x) / width;
+    let oy = (clientY - y) / height;
     let dx = dscale * w * ox;
     let dy = dscale * h * oy;
 
@@ -199,30 +204,35 @@ class Layer extends Component {
         }
       }
     }
-    // this.setState({
-    //   x: x + dx,
-    //   y: y + dy,
-    //   s: scale,
-    // });
 
     // window.scrollBy(-dx, -dy);
     dispatch(updateLayer({
       x: x + dx,
       y: y + dy,
+      w,
+      h,
       s: scale,
     }));
   }
-  getSize() {
+  getSize(src) {
     let image = document.createElement('img');
-    let {dispatch} = this.props;
+    let {x, y, s, dispatch} = this.props;
+    let layerDOM = ReactDOM.findDOMNode(this);
+
+    layerDOM.appendChild(image);
+    image.style.visibility = 'hidden';
     image.addEventListener('load', () => {
       dispatch(updateLayer({
+        x,
+        y,
         w: image.width,
         h: image.height,
+        s,
       }));
       dispatch(fitLayer());
+      layerDOM.removeChild(image);
     });
-    image.src = this.props.desc.bg;
+    image.src = src;
   }
   // updatePosition: function () {
   //   let {w, h, s} = this.props;
@@ -247,17 +257,19 @@ class Layer extends Component {
   }
 };
 
+Layer.defaultProps = {
+  x: 0,
+  y: 0,
+  w: 0,
+  h: 0,
+  s: 1,
+  desc: {bg: '', config: []},
+}
 let selector = createSelector(
-  (state) => state.factories,
   (state) => state.filter,
-  (state) => state.objects.states,
-  (state) => state.objects.behaviours,
   (state) => state.layerGeometry,
-  (factories, filter, states, behaviours, {w, h, x, y, s, minZ}) => ({
-    factories,
+  (filter, {w, h, x, y, s, minZ}) => ({
     filter,
-    states,
-    behaviours,
     x, y, w, h, s, minZ,
   })
 );
