@@ -7,3 +7,11 @@ export function handleServerMessage(message) {
     body: message
   };
 };
+export function handleState(objtype, objid, state) {
+  return {
+    type: ActionTypes.STATE,
+    objtype,
+    objid,
+    state,
+  };
+};
