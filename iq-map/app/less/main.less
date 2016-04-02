@@ -55,6 +55,23 @@ html, body {
     height: 100%;
     z-index: -1;
   }
+  &__item {
+    fill-opacity: 0.2;
+    fill: #2196F3;
+    pointer-events: all;
+    stroke-opacity: 0;
+    stroke: #11aaff;
+    stroke-width: 2px;
+    &:hover {
+      stroke-opacity: 1;
+    }
+    &--selected {
+      fill-opacity: 0.6;
+    }
+    &--alarmed {
+      fill: #ff2323;
+    }
+  }
 }
 .legend {
   display: inline-block;
@@ -125,6 +142,8 @@ html, body {
     position: absolute;
     border-style: solid;
     border-width: 1px;
+    border-color: orangered;
+    background-color: rgba(255, 69, 0, 0.1);
     z-index: 2;
     pointer-events: none;
   }
@@ -143,6 +162,10 @@ html, body {
       background-color: rgba(128, 128, 128, 0);;
     }
   }
+  &__hidden {
+    position: absolute;
+    visibility: hidden;
+  }
 }
 .icon {
   height: 32px;
@@ -153,13 +176,13 @@ html, body {
   border-radius: 50%;
   box-shadow: deepskyblue 0px 0px 15px 0px;
 }
-.camera {
+.cam {
   background-image: url(/img/cam.svg);
   background-repeat: no-repeat;
   background-size: 80%;
   background-position: center;
 }
-.sensor {
+.gray {
   background-image: url(/img/sensor.svg);
   background-repeat: no-repeat;
   background-size: 80%;
