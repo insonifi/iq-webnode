@@ -31,8 +31,6 @@ class Minimap extends Component {
   }
   componentWillUnmount() {
   }
-  shouldComponentUpdate() {
-  }
   render() {
     const { dispatch, framePosition, frameColor, desc,
             layers, width, height, showObj} = this.props;
