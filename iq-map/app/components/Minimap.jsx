@@ -36,13 +36,6 @@ class Minimap extends Component {
             layers, width, height, showObj} = this.props;
     const {l, t, w, h} = framePosition;
     const {r} = this.state;
-    // const m_width = this.props.w * this.state.s;
-    // const m_height = this.props.h * this.state.s;
-    //   const _frameColor = [
-    //     parseInt(frameColor.slice(1,3), 16),
-    //     parseInt(frameColor.slice(3,5), 16),
-    //     parseInt(frameColor.slice(5,7), 16)
-    //   ];
     const minimapStyle = {
       width,
       height: width * r,
@@ -52,8 +45,6 @@ class Minimap extends Component {
       top: width * r * t,
       width: width * w,
       height: width * r * h,
-      //background: `rgba($, 0.1)`.replace('$', _frameColor),
-      //borderColor: frameColor,
     };
       // <div className='minimap__handle handle' />
     return <div className='minimap' style={minimapStyle}>
