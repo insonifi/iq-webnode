@@ -1,9 +1,10 @@
+import _ from 'lodash';
 import {createFactory} from 'react';
 import { combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import _ from 'lodash';
 import ActionTypes from '../constants/MapConstants';
 import {getState, boundedPosition} from '../utils/misc';
+import {requestStates} from '../utils/IqNode';
 
 function layerSelected (state=0, action) {
   switch (action.type) {
@@ -36,19 +37,31 @@ const DEFAULT_LAYER_POS = {
   minZ: 1,
 };
 function layerGeometry (state=DEFAULT_LAYER_POS, action) {
-  let {x, y, w, h, s} = state;
+  let {w, h, s} = state;
   switch (action.type) {
     case ActionTypes.LAYER_GEOMETRY:
-      return _.assign({}, state, action.position);
+    {
+      let {x, y, w, h, s} = action.position;
+      let {bx, by} = boundedPosition.call({w, h, s}, x, y); 
+      return _.assign({}, state, {
+        x: bx,
+        y: by,
+        w,
+        h,
+        s
+      });
+    }
     case ActionTypes.LAYER_POINT:
-      let {point} = action;
-      let nx = -point.x * w * s + window.innerWidth / 2;
-      let ny = -point.y * h * s + window.innerHeight / 2;
+    {
+      let {x, y} = action.point;
+      let nx = -x * w * s + window.innerWidth / 2;
+      let ny = -y * h * s + window.innerHeight / 2;
       let {bx, by} = boundedPosition.call(state, nx, ny);
       return _.assign({}, state, {
         x: bx,
         y: by,
       });
+    }
     case ActionTypes.LAYER_FIT:
       let s = Math.max(window.innerWidth / w, window.innerHeight / h);
       return {
@@ -80,6 +93,8 @@ const INITIAL_OBJECTS = {
   behaviours: {},
   alarmed: {}
 };
+const PERIOD_BASE = 1000;
+const PERIOD_VAR = 1000
 function objects (state=INITIAL_OBJECTS, action) {
   switch (action.type) {
     case ActionTypes.REGISTER_BEHAVIOUR:
@@ -95,8 +110,46 @@ function objects (state=INITIAL_OBJECTS, action) {
     }
     case ActionTypes.CONFIG:
     {
+      const {config} = action;
+      /** 
+       * Start interval timer for each unique type
+       **/
+      // _.chain(config).map('config').flatten().map('type').uniq()
+      //   .forEach((type) =>
+      //     setInterval(() => requestStates(type)), PERIOD_BASE + Math.random() * PERIOD_VAR)
+      //   .value();
+      
       return _.assign({}, state, {
-        config: action.config
+        config,
+      });
+    }
+    case ActionTypes.STATE:
+    {
+      const {objtype, objid} = action;
+      const newState = new Set(action.state.toLowerCase().replace(/ /g, '').split(','));
+
+      const {config, states} = state;
+      /**
+       * Mark layers with alarmed objects
+       */
+      const alarmed = _(config).reduce((result, layer, key) => {
+        const objects = layer.config;
+        let i;
+        let obj = {};
+        let objstate = false;
+        for (i = objects.length - 1; i > -1; i -= 1) {
+          obj = objects[i];
+          objstate = newState;//getState(newStates, obj.type, obj.id);
+          if (objstate.has('alarmed')) {
+            result.add(key);
+            break;
+          }
+        }
+        return result;
+      }, new Set());
+      return _.merge({}, state, {
+        states: _.merge({}, states, {[objtype]: {[objid]: newState}}),
+        alarmed,
       });
     }
     case ActionTypes.RECV_MSG:
