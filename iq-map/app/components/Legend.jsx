@@ -16,20 +16,18 @@ class Legend extends Component {
     this.toggleFilter = this.toggleFilter.bind(this);
   }
   render() {
-    let {factories, filter, dispatch, draggable} = this.props;
-    let items = _.map(factories, (factory, key) => {
-      let toggleFilter = this.toggleFilter.bind(null, key);
+    let {items, filter, dispatch, draggable} = this.props;
+    let types = _.map(items, (type, key) => {
+      let toggleFilter = this.toggleFilter.bind(null, type);
       let toggleSwitch =
-        <Toggle defaultToggled={filter[key]} onToggle={toggleFilter} />;
+        <Toggle defaultToggled={filter[type]} onToggle={toggleFilter} />;
 
-      return  <ListItem key={key} primaryText={key} rightToggle={toggleSwitch}/>;
+      return  <ListItem key={type} primaryText={type} rightToggle={toggleSwitch}/>;
     });
-    let LegendList = <div className='legend' >
+    let LegendList = <div className='legend dropshadow' >
       <div className='legend__handle handle' />
-        <List>
-        {items}
-      </List>
-    </div>
+      <List>{types}</List>
+    </div>;
 
     if (draggable) {
       return <Draggable bounds='parent' start={{x: 20, y: 200}}>
@@ -46,10 +44,8 @@ class Legend extends Component {
 };
 
 let selector = createSelector(
-  (state) => state.factories,
   (state) => state.filter,
-  (factories, filter) => ({
-    factories,
+  (filter) => ({
     filter,
   })
 );
