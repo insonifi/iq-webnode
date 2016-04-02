@@ -1,9 +1,12 @@
 var CompressionPlugin = require("compression-webpack-plugin");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var HtmlWebpackPlugin = require('html-webpack-plugin')
 var webpack = require('webpack');
 module.exports = {
   entry: {
-    app: './app/index'
+    app: './app/index',
+    dash: './app/dash',
+    map: './app/map'
   },
   module: {
     loaders: [
@@ -26,7 +29,7 @@ module.exports = {
   output: {
     path: './',
     publicPath: './',
-    filename: 'app.js',
+    filename: '[name].js',
     sourceMapFilename: 'app.map'
   },
   resolve: {
@@ -36,15 +39,16 @@ module.exports = {
   devtool: 'source-map',
   plugins: [
         new ExtractTextPlugin('[name].css'),
-        new webpack.DefinePlugin({NODE_ENV: 'production'}),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.UglifyJsPlugin(),
+//         new webpack.DefinePlugin({NODE_ENV: 'production'}),
+//         new webpack.optimize.DedupePlugin(),
+//         new webpack.optimize.UglifyJsPlugin(),
+        new HtmlWebpackPlugin()/*,
         new CompressionPlugin({
             asset: "{file}",
             algorithm: "gzip",
             regExp: /\.js$|\.html$/,
             threshold: 10240,
             minRatio: 0.8
-        })
+        })*/
     ]
 }
