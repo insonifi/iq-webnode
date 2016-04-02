@@ -3,14 +3,13 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
 import _ from 'lodash';
-import {stringToMap} from '../utils/misc';
-const Table = require('material-ui/lib/table/table');
-const TableBody = require('material-ui/lib/table/table-body');
-const TableFooter = require('material-ui/lib/table/table-footer');
-const TableHeader = require('material-ui/lib/table/table-header');
-const TableHeaderColumn = require('material-ui/lib/table/table-header-column');
-const TableRow = require('material-ui/lib/table/table-row');
-const TableRowColumn = require('material-ui/lib/table/table-row-column');
+import Table from 'material-ui/lib/table/table';
+import TableBody from 'material-ui/lib/table/table-body';
+import TableFooter from 'material-ui/lib/table/table-footer';
+import TableHeader from 'material-ui/lib/table/table-header';
+import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
+import TableRow from 'material-ui/lib/table/table-row';
+import TableRowColumn from 'material-ui/lib/table/table-row-column';
 
 
 class StateList extends Component {
@@ -18,13 +17,13 @@ class StateList extends Component {
     super(props);
   }
   render() {
-    let {factories, states, behaviours} = this.props;
+    let {states} = this.props;
     let stateList = _.map(states, (list, type) =>
-          _.map(list, (s, id) =>
+          _.map(list, (st, id) =>
                 <TableRow>
                   <TableRowColumn>{id}</TableRowColumn>
                   <TableRowColumn>{type}</TableRowColumn>
-                  <TableRowColumn>{s ? behaviours[type].compositeState(s): ''}</TableRowColumn>
+                  <TableRowColumn>{Array.from(st).join()}</TableRowColumn>
                 </TableRow>)
     );
     return <div className='state-list' >
@@ -40,18 +39,19 @@ class StateList extends Component {
             {stateList}
           </TableBody>
         </Table>
+        {JSON.stringify(states)}
     </div>
   }
 };
 
 let selector = createSelector(
-  (state) => state.factories,
+  //(state) => state.factories,
   (state) => state.objects.states,
-  (state) => state.objects.behaviours,
-  (factories, states, behaviours) => ({
-    factories,
+  //(state) => state.objects.behaviours,
+  (states) => ({
+    //factories,
     states,
-    behaviours,
+    //behaviours,
   })
 );
 
