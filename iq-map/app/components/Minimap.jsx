@@ -1,6 +1,6 @@
 'use strict'
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
+import {findDOMNode} from 'react-dom';
 import Draggable from 'react-draggable'
 import {connect} from 'react-redux';
 import {createSelector} from 'reselect';
@@ -17,34 +17,34 @@ class Minimap extends Component {
       r: 1,
     }
     this.sendPosition = this.sendPosition.bind(this);
-    this.renderBg = this.renderBg.bind(this);
+    this.updateBg = this.updateBg.bind(this);
     this.renderLayer = this.renderLayer.bind(this);
   }
   componentDidMount() {
-    this.renderBg(this.props.desc.bg);
   }
   componentWillReceiveProps(newProps, oldProps) {
-    this.renderBg(newProps.desc.bg);
   }
   componentDidUpdate() {
     this.renderLayer();
   }
   componentWillUpdate() {
   }
-  componentWillUnmountfunction() {
+  componentWillUnmount() {
+  }
+  shouldComponentUpdate() {
   }
   render() {
-    const { dispatch, framePosition, frameColor,
+    const { dispatch, framePosition, frameColor, desc,
             layers, width, height, showObj} = this.props;
     const {l, t, w, h} = framePosition;
     const {r} = this.state;
     // const m_width = this.props.w * this.state.s;
     // const m_height = this.props.h * this.state.s;
-    const _frameColor = [
-      parseInt(frameColor.slice(1,3), 16),
-      parseInt(frameColor.slice(3,5), 16),
-      parseInt(frameColor.slice(5,7), 16)
-    ];
+    //   const _frameColor = [
+    //     parseInt(frameColor.slice(1,3), 16),
+    //     parseInt(frameColor.slice(3,5), 16),
+    //     parseInt(frameColor.slice(5,7), 16)
+    //   ];
     const minimapStyle = {
       width,
       height: width * r,
@@ -54,11 +54,12 @@ class Minimap extends Component {
       top: width * r * t,
       width: width * w,
       height: width * r * h,
-      background: `rgba($, 0.1)`.replace('$', _frameColor),
-      borderColor: frameColor,
+      //background: `rgba($, 0.1)`.replace('$', _frameColor),
+      //borderColor: frameColor,
     };
       // <div className='minimap__handle handle' />
     return <div className='minimap' style={minimapStyle}>
+      <img ref='img' className='minimap__hidden' src={desc.bg} onLoad={this.updateBg}/>
       <canvas className='minimap__bg' ref='bg' onClick={this.sendPosition} />
       { showObj ? <canvas className='minimap__layer'  ref='layer' /> : null}
       <div className='minimap__frame' style={frameStyle} />
@@ -68,34 +69,31 @@ class Minimap extends Component {
     let {clientX, clientY} = e;
     let {dispatch, width} = this.props;
     let {s, r} = this.state;
-    let {left, top} = ReactDOM.findDOMNode(this).getBoundingClientRect();
+    let {left, top} = findDOMNode(this).getBoundingClientRect();
     let x = (clientX - left) / (width);
     let y = (clientY - top) / (width * r);
     dispatch(updateLayerCentre({x, y,}));
   }
 
-  renderBg(src) {
-    let {width} = this.props;
-    let bgcanvas = this.refs.bg;
-    let image = document.createElement('img');
-    image.addEventListener('load', (function () {
-      let scale = width/image.width;
-      this.setState({
-        s: scale,
-        r: image.height/image.width,
-      });
-      bgcanvas.width = image.width * scale;
-      bgcanvas.height = image.height * scale;
-      let bgctx = bgcanvas.getContext('2d');
-      bgctx.fillStyle = 'white';
-      bgctx.fillRect(0, 0, image.width, image.height);
-      bgctx.save();
-      bgctx.scale(scale, scale);
-      bgctx.drawImage(image, 0, 0);
-      bgctx.restore();
-      this.renderLayer();
-    }).bind(this));
-    image.src = src;
+  updateBg() {
+    const {img, bg} = this.refs;
+    const {width} = this.props;
+
+    const scale = width/img.width;
+    this.setState({
+      s: scale,
+      r: img.height/img.width,
+    });
+    bg.width = img.width * scale;
+    bg.height = img.height * scale;
+    let bgctx = bg.getContext('2d');
+    bgctx.fillStyle = 'white';
+    bgctx.fillRect(0, 0, img.width, img.height);
+    bgctx.save();
+    bgctx.scale(scale, scale);
+    bgctx.drawImage(img, 0, 0);
+    bgctx.restore();
+    this.renderLayer();
   }
   renderLayer() {
     if (this.props.showObj) {
