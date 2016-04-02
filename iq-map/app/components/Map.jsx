@@ -18,7 +18,8 @@ import MapStore from '../stores/MapStore';
 import {fitLayer, selectLayer} from '../actions/MapActionCreators';
 import {requestState} from '../utils/IqNode';
 
-class Map extends Component {constructor(props) {
+class Map extends Component {
+  constructor(props) {
     super(props);
   }
   componentWillMount() {
@@ -30,26 +31,25 @@ class Map extends Component {constructor(props) {
   componentWillReceiveProps (nextProps) {
   }
   render() {
-    let { dispatch, layerNames, layers, selected } = this.props;
-    let layer = layers[selected];
-    let menuItems = _.map(layerNames, (val, idx) => ({payload: idx, text: val}));
-    let layout = layer ? <div>
+    const { dispatch, layerNames, layers, selected } = this.props;
+    const layer = _.get(layers, selected, {config: [], bg: '', name:''});
+    const types = _(_.get(layer, 'config')).map('type').uniq().value();
+    const menuItems = _.map(layerNames, (val, idx) => ({payload: idx, text: val}));
+
+    return <div>
       <div className='layer__fit'>
         <FitButton onClick={() => dispatch(fitLayer())} />
       </div>
       <Viewport>
-        <Layer desc={layer} maxZoom={20}/>
-        <Legend draggable={true}/>
+        <Layer desc={layer} maxZoom={20} notifyLimit={500} collapseDist={40}/>
+        <Legend items={types} draggable={true}/>
       </Viewport>
     </div>
-    : null;
-
-    return layout
   }
 }
 
 let selector = createSelector(
-  (state) => _.pluck(state.objects.config, 'name'),
+  (state) => _.map(state.objects.config, 'name'),
   (state) => state.objects.config,
   (state) => state.layerSelected,
   (layerNames, layers, selected) => ({
