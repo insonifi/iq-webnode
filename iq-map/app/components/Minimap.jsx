@@ -8,7 +8,7 @@ import FlatButton from 'material-ui/lib/flat-button';
 import Paper from 'material-ui/lib/paper';
 import {getObjectState} from '../stores/MapStore';
 import {updateLayerCentre} from '../actions/MapActionCreators';
-let scale = 1;
+
 class Minimap extends Component {
   constructor(props) {
     super(props)
