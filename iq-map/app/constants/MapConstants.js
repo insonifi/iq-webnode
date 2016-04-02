@@ -5,6 +5,7 @@ export default keyMirror({
   EVENT: null,
   REACT: null,
   RECV_MSG: null,
+  STATE: null,
   CONFIG: null,
   LAYER_SELECT: null,
   LAYER_ALARM: null,
